@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#__Author__ = moxiaoxi
-#___name___ = task2 as client(Alice)
+__Author__ = moxiaoxi
+___name___ = task2 as client(Alice)
 
 #两个模块来实现序列化
 try:
