@@ -1,25 +1,29 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-__Author__ = 'moxiaoxi'
+__Author__ = 'nvie'
 __Filename__ = 'AES.py'
+
 '''
-Database operation module.
+>>> from cryption import aes
+>>> key = 'Some arbitrary bytestring.'  # Store this somewhere safe
+>>> aestest = aes.AES(key)
+>>> ciphertext = aestest.encrypt('My secret plaintext data')
+>>> ciphertext
+'U2FsdGVkX1/n2YDlhnMBHXxjyWT1fQ58lECKmC97Polz17mWCuLQmzJRzCtlWT29'
+>>> plaintext = aestest.decrypt(ciphertext)
+>>> plaintext
+'My secret plaintext data'
+
 '''
+
 import random
 import struct
 import base64
 import hashlib
-import warnings
 from StringIO import StringIO
 from Crypto.Cipher import AES
-from .version import VERSION
-from .exceptions import EncryptionError, DecryptionError
 
-__title__ = 'SimpleAES'
-__version__ = VERSION
-__author__ = 'Vincent Driessen'
-__license__ = 'BSD'
-__copyright__ = 'Copyright 2012 Vincent Driessen'
+
 
 
 def check_output(cmd, input_=None, *popenargs, **kwargs):
@@ -42,7 +46,7 @@ def _random_noise(len):
     return ''.join(chr(random.randint(0, 0xFF)) for i in range(len))
 
 
-class SimpleAES(object):
+class AES(object):
     def __init__(self, password):
         # First, generate a fixed-length key of 32 bytes (for AES-256)
         self._password = password
@@ -80,7 +84,7 @@ class SimpleAES(object):
     def _legacy_decrypt(self, b64_ciphertext):
         """Decrypts a string that's encoded with a SimpleAES version < 1.0.
         To convert a ciphertext to the new-style algo, use:
-            aes = SimpleAES('my secret')
+            aes =AES('my secret')
             aes.convert(legacy_ciphertext)
         """
         cipherbytes = base64.b64decode(b64_ciphertext)
@@ -110,24 +114,10 @@ class SimpleAES(object):
 
         return text
 
-    def base64_encrypt(self, string):
-        # Since 1.0, encrypt returns the result base64-encoded already
-        warnings.warn('base64_encrypt() is deprecated in favor of encrypt().',
-                      DeprecationWarning)
-        return self.encrypt(string)
-
-    def base64_decrypt(self, ciphertext):
-        # Since 1.0, decrypt will base64-decode the input already
-        warnings.warn('base64_decrypt() is deprecated in favor of decrypt().',
-                      DeprecationWarning)
-        return self.decrypt(ciphertext)
-
-
-__all__ = ['SimpleAES']
 
 if __name__ == '__main__':
     key = 'Som3 r4nd0mly g3nera4ted k3y!'
-    aes = SimpleAES(key)
+    aes = AES(key)
     for input_len in range(0, 128):
         for times in range(0, 3):
             input = _random_noise(input_len)
