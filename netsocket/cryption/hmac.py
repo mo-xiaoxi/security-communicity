@@ -3,7 +3,12 @@
 __Author__ = 'moxiaoxi'
 __Filename__ = 'hmac.py'
 
-
+'''
+key为hmac密钥，msg表示传入信息
+rom cryption import hmac
+h = hmac.hmac_md5("key", "Im ted")
+print h.hexdigest()#99f6545ceecfc05cf7751c2e6a30715d
+'''
 from hashlib import md5
 
 trans_5C = "".join(chr(x ^ 0x5c) for x in xrange(256))

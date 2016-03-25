@@ -2,6 +2,21 @@
 # -*- coding: utf-8 -*-
 __Author__ = 'moxiaoxi'
 __Filename__ = 'getNeededKey.py'
+
+'''
+当i＝0时，取key前三分之一
+当i＝1时，取key中间三分之一
+当i＝2时，取key后三分之一
+当i不为上述情况或者i和key类型不符合时，raise 输入参数错误
+from cryption import getNeededKey
+key = '123456789qwertyuio'
+for i in range(3):
+    an = getNeededKey.getNeededkey1(key,i)
+    print an
+#123456
+#789qwe
+#rtyuio
+'''
 def getNeededkey1(key,i):
     l=len(key)
     if  isinstance(key,str) and isinstance(i,int) and l%3 == 0 :

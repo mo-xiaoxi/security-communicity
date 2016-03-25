@@ -1,8 +1,8 @@
-# from .aes import AES
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+__Author__ = 'moxiaoxi'
+__Filename__ = 'testCription.py'
 
-# # key = 'Some arbitrary bytestring.'  # Store this somewhere safe
-# # aes = AES(key)
-# # ciphertext = aes.encrypt('My secret plaintext data')
-# # print ciphertext
-# # plaintext = aes.decrypt(ciphertext)
-# # print plaintext
+
+
+
