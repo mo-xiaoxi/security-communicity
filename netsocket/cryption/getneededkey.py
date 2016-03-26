@@ -17,7 +17,7 @@ for i in range(3):
 #789qwe
 #rtyuio
 '''
-def getNeededkey1(key,i):
+def getkey(key,i):
     l=len(key)
     if  isinstance(key,str) and isinstance(i,int) and l%3 == 0 :
         l/=3

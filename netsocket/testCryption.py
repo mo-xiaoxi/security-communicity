@@ -1,8 +1,9 @@
-from cryption import aes,hmac,getNeededKey
+from cryption import aes,hmac,getNeededKey,messageExchangge,keyExpand,packetFill
+
 
 #test aes
-key = 'Some arbitrary bytestring.'  # Store this somewhere safe
-aestest = aes.AES(key)
+key = '1234567891234567'  # Store this somewhere safe
+aestest = aes.prpcrypt(key)
 ciphertext = aestest.encrypt('M1')
 print ciphertext
 plaintext = aestest.decrypt(ciphertext)
@@ -15,5 +16,19 @@ print h.hexdigest()
 #test getNeededKey
 key = '123456789qwertyuio'
 for i in range(3):
-    an = getNeededKey.getNeededkey1(key,i)
+    an = getNeededKey.getkey(key,i)
     print an
+
+
+#test  messageExchangge
+print messageExchangge.m_exchange("abcdefsdfswerd")
+#test  keyExpand
+k="284268746382"
+m="msdfd1"
+print keyExpand.xor_string(k, m)
+#test  packetFill
+message='1231'
+x=987987
+m,y=packetFill.packetFill(message,x)
+print m,y
+print packetFill.re_packetFill(m,y)
