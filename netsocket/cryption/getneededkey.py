@@ -35,5 +35,5 @@ def getkey(key,i):
 if __name__ == '__main__':
     key = '123456789qwertyuio'
     for i in range(3):
-        print getNeededkey1(key,i)
+        print getkey(key,i)
 

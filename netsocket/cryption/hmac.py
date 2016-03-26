@@ -26,3 +26,4 @@ def hmac_md5(key, msg):
 if __name__ == "__main__":
   h = hmac_md5("key", "Im ted")
   print h.hexdigest()
+  print len(h.hexdigest())
