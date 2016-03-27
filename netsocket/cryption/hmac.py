@@ -24,6 +24,12 @@ def hmac_md5(key, msg):
   return md5(o_key_pad + md5(i_key_pad + msg).digest())
 
 if __name__ == "__main__":
-  h = hmac_md5("key", "Im ted")
+  h = hmac_md5("0000000100000002m2ﾻÉè5úIBÏ&þïﾎQbﾾﾋiëﾑYﾒú﾿ﾏ", "\^XZ	T")
+  print h.hexdigest()
+  print len(h.hexdigest())
+  h = hmac_md5("0000000100000002m2ﾻÉè5úIBÏ&þïﾎQbﾾﾋiëﾑYﾒú﾿ﾏ", "\^XZ	T")
+  print h.hexdigest()
+  print len(h.hexdigest())
+  h = hmac_md5("0000000100000002m2ﾻÉè5úIBÏ&þïﾎQbﾾﾋiëﾑYﾒú﾿ﾏ", "\^XZ	T")
   print h.hexdigest()
   print len(h.hexdigest())

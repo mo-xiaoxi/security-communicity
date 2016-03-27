@@ -28,9 +28,9 @@ def getkey(key,i):
         elif(i==2):
             return key[2*l:3*l]
         else:
-            raise ValueError('the  argument not allowed')
+            raise ValueError('2the  argument not allowed')
     else:
-        raise ValueError('the  argument not allowed')
+        raise ValueError('1the  argument not allowed')
 
 if __name__ == '__main__':
     key = '123456789qwertyuio'

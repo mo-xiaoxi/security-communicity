@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-__Author__ = 'lixu'
-__Filename__ = 'server.py'
+__Author__ = 'moxiaoxi'
+__Filename__ = 'testCription.py'
 '''
 
 '''
@@ -14,6 +14,7 @@ import sys
 import socket
 import struct 
 from cryption import aes,hmac,getNeededKey,messageExchangge,keyExpand,packetFill
+import sys
 import threading
 from threading import Thread
 

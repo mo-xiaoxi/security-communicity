@@ -1,34 +1,31 @@
-from cryption import aes,hmac,getNeededKey,messageExchangge,keyExpand,packetFill
-
-
-#test aes
-key = '1234567891234567'  # Store this somewhere safe
-aestest = aes.prpcrypt(key)
-ciphertext = aestest.encrypt('M1')
-print ciphertext
-plaintext = aestest.decrypt(ciphertext)
-print plaintext
-
-#test hmac
-h = hmac.hmac_md5("key", "Im ted")
-print h.hexdigest()
-
-#test getNeededKey
-key = '123456789qwertyuio'
-for i in range(3):
-    an = getNeededKey.getkey(key,i)
-    print an
-
-
-#test  messageExchangge
-print messageExchangge.m_exchange("abcdefsdfswerd")
-#test  keyExpand
-k="284268746382"
-m="msdfd1"
-print keyExpand.xor_string(k, m)
-#test  packetFill
-message='1231'
-x=987987
-m,y=packetFill.packetFill(message,x)
-print m,y
-print packetFill.re_packetFill(m,y)
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+__Author__ = 'moxiaoxi'
+__Filename__ = 'testCription.py'
+#coding: utf-8  
+import thread  
+from time import sleep, ctime  
+  
+def loop0():  
+    print 'loop0 start at：', ctime()  
+    print 'loop0挂起4秒'  
+    sleep(4)  
+    print 'loop0 done at：', ctime()  
+  
+def ReceieveSecurity(host,port):  
+    print host
+    print port
+    print 'loop1 start at：', ctime()  
+    print 'loop1挂起2秒'  
+    sleep(2)  
+    print 'loop1 done at：', ctime()  
+  
+def main():  
+    print 'main thread start!'  
+    thread.start_new_thread(ReceieveSecurity, ('localhost',12314))  
+    thread.start_new_thread(loop0, ())  
+    sleep(6)  #主线程睡眠等待子线程结束  
+    print 'all done at:', ctime()  
+  
+if __name__ == '__main__':  
+    main()  
