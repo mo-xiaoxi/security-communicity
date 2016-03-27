@@ -44,7 +44,8 @@ def packetFill(message,seq):
     message=seq+bm_length+message
     return message,m_length
     
-def re_packetFill(message,m_length):
+def re_packetFill(message):
+    m_length=int(message[8:16])
     m_len=int(message[0:8])
     message=message[16:16+m_length]
     return message,m_len
@@ -55,4 +56,4 @@ if __name__ == '__main__':
     x=987987
     m,y=packetFill(message,x)
     print m,y
-    print re_packetFill(m,y)
+    print re_packetFill(m)
