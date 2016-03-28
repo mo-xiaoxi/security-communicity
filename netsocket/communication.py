@@ -3,13 +3,27 @@
 __Author__ = 'moxiaoxi and lixu'
 __Filename__ = 'communication.py'
 '''
+getPrintKey(str)
+由于在大包时，struct.pack("<1024s32s",messagetmp,h)，messagetmp的长度往往
+小于1024。此时系统会自动补足数据。因此，在解包时就会出现错误。所以，构造一个getPrintKey
+函数，用于去除自动补足的数据
 
+readFile(string,typename)
+该函数主要用于读取初始化文件，用于初始化key，seq
+
+writeFile(string,i,typename)
+该函数用于向文件中写入key与seq 
+
+class com()://信息交互类
+    __init__（self) 类初始化
+    def SendSecurity(self,str,host,port)    发送数据
+    def ReceieveSecurity(self,host,port)    接受数据
 '''
 import sys
 import socket
 import struct 
 import thread
-from time import sleep, ctime  
+from time import  ctime  
 from cryption import Subcontracting,aes,hmac,getNeededKey,messageExchangge,keyExpand,packetFill
 
 
@@ -48,7 +62,7 @@ def writeFile(string,i,typename):
 
 class com():
     def __init__(self):
-        self.time = 5
+        self.time = 5 #发包超时时间
         self.bufsiz = 544
         self.keyFile = './netsocket/key'
         self.key = readFile(self.keyFile,'key')
@@ -56,6 +70,8 @@ class com():
         self.seqSend = readFile(self.sendSeqFile,'seq')
         self.recSeqFile = './netsocket/r_count'
         self.seqRec = readFile(self.recSeqFile,'seq')
+        self.timeoutCount = 0 #超时重发次数
+
 
     def SendSecurity(self,str,host,port):
         ADDR = (host,port)#这里未加参数验证，后期需要修改，暂时不知道咋改
@@ -91,19 +107,19 @@ class com():
             #发送数据   
             Sock.sendto(data,ADDR)
             # just for test
-            print 'origin:',datas[self.seqSend]
-            print 'packetFill:',message
-            print 'AES:',messagetmp
-            print 'HMAC:',h
-            print 'ack:',ack
-            print 'data:',data
-            print 'ADDR:',ADDR
-            print 'ackexchangge:',acktmp
-            print 'lenOfOriginData:',lenOfData
-            print self.key
-            print getNeededKey.getKey(self.key,1)
-            print 'k0',getNeededKey.getKey(self.key,0)
-            print getNeededKey.getKey(self.key,2)
+            # print 'origin:',datas[self.seqSend]
+            # print 'packetFill:',message
+            # print 'AES:',messagetmp
+            # print 'HMAC:',h
+            # print 'ack:',ack
+            # print 'data:',data
+            # print 'ADDR:',ADDR
+            # print 'ackexchangge:',acktmp
+            # print 'lenOfOriginData:',lenOfData
+            # print self.key
+            # print getNeededKey.getKey(self.key,1)
+            # print 'k0',getNeededKey.getKey(self.key,0)
+            # print getNeededKey.getKey(self.key,2)
             # test ending
             while True:
                 try:
@@ -113,7 +129,7 @@ class com():
                         self.key=keyExpand.xor_string(self.key,datas[self.seqSend])
                         self.seqSend=self.seqSend+1
                         #序列值循环
-                        if self.seqSend == 0xff:
+                        if self.seqSend == 0xFF:
                             self.seqSend = 0
                         print 'seq and key update successful , we save it !'
                         #保存操作
@@ -128,8 +144,13 @@ class com():
                         Sock.sendto(data,ADDR)
                 except socket.timeout:
                     print "timeout,send again"
-                    Sock.sendto(data,ADDR)  #超时重发 这里还需要做一个多次重发，直接放弃的丢包 
-        #senddatas(datas)
+                    Sock.sendto(data,ADDR) 
+                    self.timeoutCount = self.timeoutCount + 1
+                    #超时重发 这里还需要做一个多次重发，直接放弃的丢包
+                    if self.timeoutCount > 10:
+                        print "can't send successful !something erorr ! please check the system !" 
+                        break
+                     
         Sock.close()
         return 1
 
@@ -194,9 +215,6 @@ class com():
                 print "sequence error,we still send ack packet to client !"
                 ser_socket.sendto(s_ack, cli_address)
                 print "send to ",cli_address,"data:",s_ack
-            #其余情况不做处理，让客户端超时重发
-            #else:
-            #   print 'hmc error,we do not sent ack and wait clint sent again' 
         return 1
 
     def server(self,host,port):

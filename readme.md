@@ -6,45 +6,46 @@
 ## 项目目录结构：
 ```
 .
-├── appReceieve.py				<--- 外部应用程序
-├── appSend.py				<--- 外部应用程序
-├── backup						<--- 备份文件
-├── netsocket						<--- 通信模块
-└── readme.md						<--- 本文件
-.
-├── 1.pdf
-├── appReceieve.py
-├── appSend.py
-├── backup
-│   ├── client.py
-│   ├── server.py
-│   ├── test1.py
-│   ├── test2.py
-│   ├── threadutil.py
-│   └── ?\210\235?\213?\214\226.cpp
-├── netsocket
-│   ├── Subcontracting.py
-│   ├── __init__.py
-│   ├── communication.py
-│   ├── communicationbackup.py
-│   ├── cryption
-│   │   ├── __init__.py
-│   │   ├── aes.py
-│   │   ├── aesback.py
-│   │   ├── getNeededKey.py
-│   │   ├── hmac.py
-│   │   ├── keyExpand.py
-│   │   ├── messageExchangge.py
-│   │   ├── packetFill.py
-│   │   └── readme.md
-│   ├── netSim.py
-│   ├── output.txt
-│   ├── readme.md
-│   ├── s_count.txt
-│   └── testCryption.py
-└── readme.md
+├── appReceieve.py				<----外部应用，用于接收
+├── appSend.py					<----外部应用，用于发送
+├── backup						<----上一个版本备份目录
+├── netsocket						<----代码库
+│   ├── __init__.py				<----初始化文件
+│   ├── communication.py			<--- 信息交流文件（最关键）
+│   ├── communicationbackup.py	<--- 信息交流文件备份
+│   ├── cryption					<--- 密码库
+│   │   ├── Subcontracting.py		<--- 包切分
+│   │   ├── __init__.py			<--- 初始化文件
+│   │   ├── aes.py				<---aes加解密
+│   │   ├── aesback.py			<---aes加解密备份
+│   │   ├── getNeededKey.py		<---从key从获取相应部分密钥
+│   │   ├── hmac.py				<---hmac实现
+│   │   ├── keyExpand.py			<---密钥衍生
+│   │   ├── messageExchangge.py	<---密钥前后交换，用于ack
+│   │   ├── packetFill.py			<---数据填充
+│   │   └── readme.md				<---密码库说明文件
+│   ├── key						<----密钥文件
+│   ├── netSim.py					<---网络仿真测试文件
+│   ├── r_count					<----服务端序列计数
+│   ├── readme.md					<----说明文件（本文件）
+│   ├── s_count					<----客户端序列计数
+│   └── testCryption.py			<----密码库测试文件
+└── readme.md						<----说明文件，本文件
 ```
 
 ## 使用方法
-![image](http://momomoxiaoxi.com/img/rpi/1.png)
-![image](http://momomoxiaoxi.com/img/rpi/2.png)
+1. 因为暂时还未确认具体文件读取情况，所以请每次运行前，检查下文件是否正常
+	1. s_count文件内容置为0
+	2. r_count文件内容置为－1
+	3. key文件内容为64位长度 
+2. 首先，运行python appReceieve.py,监听端口
+3. 然后，运行python appSend.py 发送数据
+4. 若上述配置，正确就能正常运行
+
+## 版本缺陷
+1. 具体文件读取方式，如何保存数据都有待商榷，当前版本比较不便
+2. 传输断电重启时，自动重传了未传数据。我觉得，重启后，若上一次数据没有传完，应提示用户，然后由用户决定是否重传上次数据
+3. 关于断电情况，本版本只记录了key和seq两个值，对于信息暂时还没有处理。即如果传输10个包，然后在第5个包时，断电了。重启后，接收端最多只能接收到后面5个包，前面5个包不会出现。（不过，这个比较好处理。只需要做个储存操作即可。本版本只是觉得，我们想的储存方法有点繁琐，望继续讨论）
+4. 在某些函数入口，对一些函数的参数检测还未完全完善，后期继续完善
+5. 对于整个函数库，如何接入上层系统还有待讨论。即，如何通过合理的封装，实现全双工的通信。当前，代码只能实现单方面交流。（拟通过开启两个端口，进行全双工实现）
+

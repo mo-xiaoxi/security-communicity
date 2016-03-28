@@ -17,9 +17,10 @@
 │   ├── packetFill.py		<---数据填充
 │   └── readme.md			<---密码库说明文件
 ├── netSim.py				<---网络仿真测试文件
-├── output.txt			<----服务端收到信息
+├── r_count				<----服务端序列计数
 ├── readme.md				<----说明文件（本文件）
-├── s_count.txt			<----服务端序列计数
+├── s_count				<----客户端序列计数
+├── key					<----密钥文件
 └── testCryption.py		<----密码库测试文件
 
 ```
