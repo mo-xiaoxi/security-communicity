@@ -8,28 +8,29 @@
 .
 ├── appReceieve.py				<----外部应用，用于接收
 ├── appSend.py					<----外部应用，用于发送
-├── backup						<----上一个版本备份目录
-├── netsocket						<----代码库
+├── netsocket						<----整个系统封装在该文件夹下
 │   ├── __init__.py				<----初始化文件
-│   ├── communication.py			<--- 信息交流文件（最关键）
-│   ├── communicationbackup.py	<--- 信息交流文件备份
-│   ├── cryption					<--- 密码库
+│   ├── comlib					<--- 密码库
 │   │   ├── Subcontracting.py		<--- 包切分
 │   │   ├── __init__.py			<--- 初始化文件
 │   │   ├── aes.py				<---aes加解密
-│   │   ├── aesback.py			<---aes加解密备份
+│   │   ├── File.py				<---文件读取操作
 │   │   ├── getNeededKey.py		<---从key从获取相应部分密钥
 │   │   ├── hmac.py				<---hmac实现
 │   │   ├── keyExpand.py			<---密钥衍生
 │   │   ├── messageExchangge.py	<---密钥前后交换，用于ack
 │   │   ├── packetFill.py			<---数据填充
 │   │   └── readme.md				<---密码库说明文件
-│   ├── key						<----密钥文件
+│   ├── communication.py			<--- 信息交流文件（最关键）
 │   ├── netSim.py					<---网络仿真测试文件
-│   ├── r_count					<----服务端序列计数
-│   ├── readme.md					<----说明文件（本文件）
-│   ├── s_count					<----客户端序列计数
-│   └── testCryption.py			<----密码库测试文件
+│   ├── msgRec						<----接受端信息缓存文件
+│   ├── msgSend						<----发送端信息缓存文件
+│   ├── r_key						<----接受端密钥文件
+│   ├── r_count					<----接受端序列计数
+│   ├── s_key					<----发送端密钥文件
+│   ├── s_count					<----发送端序列计数
+│   ├── readme.md					<----说明netsocket下各文件作用
+│   └── testCryption.py			<----comlib测试文件（当前代码用于为整个系统恢复默认设置）
 └── readme.md						<----说明文件，本文件
 ```
 
