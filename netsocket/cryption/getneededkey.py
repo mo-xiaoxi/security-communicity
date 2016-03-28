@@ -17,7 +17,7 @@ for i in range(3):
 #789qwe
 #rtyuio
 '''
-def getkey(key,i):
+def getKey(key,i):
     l=len(key)
     if  isinstance(key,str) and isinstance(i,int) and l%3 == 0 :
         l/=3
@@ -35,5 +35,5 @@ def getkey(key,i):
 if __name__ == '__main__':
     key = '123456789qwertyuio'
     for i in range(3):
-        print getkey(key,i)
+        print getKey(key,i)
 

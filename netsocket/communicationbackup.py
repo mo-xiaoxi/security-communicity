@@ -1,33 +1,36 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-__Author__ = 'moxiaoxi'
-__Filename__ = 'testCription.py'
+__Author__ = 'moxiaoxi and lixu'
+__Filename__ = 'communication.py'
 '''
 
 '''
 import sys
 import socket
 import struct 
+import thread
+from time import sleep, ctime  
 from cryption import aes,hmac,getNeededKey,messageExchangge,keyExpand,packetFill
 
-
-#md5加密
-def md5(str):
-    import hashlib
-    import types
-    if type(str) is types.StringType:
-        m = hashlib.md5()
-        m.update(str)
-        return m.hexdigest()
-    else:
-        return ''
-
-
-def SendSecurity(str,host,port):
-    ADDR = (host,port)#这里未加参数验证，后期需要修改，暂时不知道咋改
+time = 5
+bufsiz = 1024
+key = '123456789123456712345678912345671234567891234567'
+def init():
     time = 5
     bufsiz = 544
     key='123456789123456712345678912345671234567891234567'
+
+
+def getPrintKey(str):
+    import string
+    printable = set(string.printable)
+    return filter(lambda x:x in printable,str)
+
+def SendSecurity(str,host,port):
+    ADDR = (host,port)#这里未加参数验证，后期需要修改，暂时不知道咋改
+    global time
+    global bufsiz
+    global key
     #初始化socket
     try:
         Sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -57,32 +60,28 @@ def SendSecurity(str,host,port):
         messagetmp=AES.encrypt(message)
         #对message进行hmac
         h = hmac.hmac_md5(getNeededKey.getkey(key,0), message).hexdigest()
-        #h=hmac.hmac_md5("\^XZ	T", "0000000100000002m2ﾻÉè5úIBÏ&þïﾎQbﾾﾋiëﾑYﾒú﾿ﾏ").hexdigest()
-        #print 'helloooooooooooooooooooooooo:   ',h
         #得到本地ack校验值
         acktmp = messageExchangge.m_exchange(messagetmp)
-        #print "acktemp:    ",acktmp
         ack =  hmac.hmac_md5(getNeededKey.getkey(key,2), acktmp).hexdigest()
-        #ack = md5(acktmp)
         #打包成发送数据格式 AES加密后数据（最大512位）＋HMAC输出（32位）
         data=struct.pack("<1024s32s",messagetmp,h)
         #发送数据   
         Sock.sendto(data,ADDR)
-        #just for test
+        # just for test
         # print 'origin:',datas[i]
-        print 'packetFill:',message
-        print 'AES:',messagetmp
-        print 'HMAC:',h
+        # print 'packetFill:',message
+        # print 'AES:',messagetmp
+        # print 'HMAC:',h
         # print 'ack:',ack
-        print 'data:',data
+        # print 'data:',data
         # print 'ADDR:',ADDR
         # print 'ackexchangge:',acktmp
         # print 'lenOfOriginData:',lenOfData
         # print key
         # print getNeededKey.getkey(key,1)
-        #print 'k0',getNeededKey.getkey(key,0)
+        # print 'k0',getNeededKey.getkey(key,0)
         # print getNeededKey.getkey(key,2)
-        #test ending
+        # test ending
         while True:
             try:
                 ackmessage,address = Sock.recvfrom(bufsiz) #接收校验包
@@ -108,13 +107,98 @@ def SendSecurity(str,host,port):
     Sock.close()
     return 1
 
-def ReceieveSecurity(str):
-    return
-def server():
+def ReceieveSecurity(host,port):
+    # 声明全局变量，接收消息后更改  
+    is_ending=False
+    #sequence
+    global key
+    ADDR = (host,port)#这里未加参数验证，后期需要修改，暂时不知道咋改
+    # 初始化UDP socket
+    try:
+        ser_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    except socket.error, msg:
+        print 'Failed to create socket. Error code: ' + str(msg[0]) + ' , Error message : ' + msg[1]
+
+    ser_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    ser_socket.bind(ADDR)
+    #sequence = readfile('s_count.txt') #得到序列值
+    sequence=-1#测试用
+    while (1):
+        try:
+            #接收数据，发送者地址
+            message, cli_address = ser_socket.recvfrom(2048)
+            #打印接收数据项
+            print "receieving data :",message
+        except:
+            traceback.print_exc()
+            continue
+        #解开数据包
+        data,h=struct.unpack("<1024s32s",message)
+        #print 'chuliqian:',data
+        data = getPrintKey(data)
+        #print 'chulihou:',data
+        #print 'hmac:',h,cli_address
+        #print 'key',key
+        AES=aes.prpcrypt(getNeededKey.getkey(key,1))
+        #得到本地ack校验值
+        acktmp = messageExchangge.m_exchange(data)
+        s_ack =  hmac.hmac_md5(getNeededKey.getkey(key,2), acktmp).hexdigest()
+        #print data 
+        #解密文件包
+        data=AES.decrypt(data)
+        #对message进行hmac
+        s_h = hmac.hmac_md5(getNeededKey.getkey(key,0), data).hexdigest()       
+        #解除填充
+        tmp,i=packetFill.re_packetFill(data)
+        #print 'dui bi s_h he h'
+        #print s_h
+        #print h
+        #print tmp
+        #print 'hello:   ',h
+        #print 'k0',getNeededKey.getkey(key,0)
+        #print 'jiemi:',data
+        #print "acktemp:    ",acktmp
+        #信息正确可以处理
+        if (i == (sequence+1)and (s_h==h)):
+            print "sequence sucessfully ,save it !"
+            print tmp
+            #储存数据
+            '''f = open('output.txt', 'a')
+            datas=pickle.dump(tmp,f)
+            f.close()
+            '''
+            sequence = i
+            #更新密钥
+            key=keyExpand.xor_string(key,tmp)
+            #储存计数
+            with open('s_count.txt', 'w') as d:
+                d.write(str(sequence)) 
+            if tmp == "end":
+                is_ending = True
+            ser_socket.sendto(s_ack, cli_address)#发送校验包
+            print "send to ",cli_address,"data:",s_ack
+        #发送了重复的信息，那么不保存只发送hmac，让客户端更新状态
+        else:#(i != (sequence+1)and (s_h==h)):
+            print "sequence error,we still send ack packet to client !"
+            ser_socket.sendto(s_ack, cli_address)
+            print "send to ",cli_address,"data:",s_ack
+        #其余情况不做处理，让客户端超时重发
+        #else:
+        #   print 'hmc error,we do not sent ack and wait clint sent again' 
+    return 1
+
+def server(host,port):
+    try:
+        thread.start_new_thread(ReceieveSecurity, (host,port))  
+    except:
+        print "Error: unable to start thread"
     #通过server开一个线程，在后台监听受到的信息
+    #ReceieveSecurity
     return
 
 
 
 if __name__ == '__main__':
-    SendSecurity('123','localhost',123)
+   #SendSecurity('123','localhost',12345)
+    server('localhost',12345)
+
