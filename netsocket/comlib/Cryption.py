@@ -198,8 +198,12 @@ def re_packetFill(message):
     message=message[16:16+m_length]
     return message,seq
 
-
-#去除不可打印字符（这里主要用来去除打包时，填充的包）
+'''
+由于在打包时，struct.pack("<1024s32s",messagetmp,h)，messagetmp的长度往往
+小于1024。此时系统会自动补足数据。因此，在解包时就会出现错误。所以，构造一个getPrintKey
+函数，用于去除自动补足的数据
+去除不可打印字符（这里主要用来去除打包时，填充的包）
+'''
 def getPrintdata(str):
     import string
     printable = set(string.printable)

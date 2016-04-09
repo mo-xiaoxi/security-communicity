@@ -1,0 +1,9 @@
+{
+    "time":5,
+    "bufsiz":1024,
+    "resendcount": 0,
+    "keyFile":"SKey",
+    "msgFile":"msgSend",
+    "SeqFile":"SeqSend",
+    "stateFile":"state"
+}

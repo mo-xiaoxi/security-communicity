@@ -12,51 +12,38 @@ please enjoy it !
 '''
 #读取文件(得到序列)
 def readFile(string,typename):
-    if isinstance(string,str):
-        with open(string,'rb') as d:
-            if(typename == 'seq'):
-                data=d.read()
-                data=int(data)
-            elif(typename == 'key'):
-                data=d.read(64)
-            elif(typename ==  'msg'):
-                data=d.read()
-            else:
-                print 'read error !please check it !'
-        d.close()
-        return data
-    else:
-        return -1
+    with open(string,'rb') as d:
+        if(typename == 'num'):
+            data=d.read()
+            data=int(data)
+        elif(typename == 'key'):
+            data=d.read(64)
+        elif(typename ==  'msg'):
+            data=d.read()
+        elif(typename == 'json'):
+            import json
+            data = json.loads(d.read())
+        else:
+            print 'read error !please check it !'
+    d.close()
+    return data
+    
 
 #写入序列到文件
 def writeFile(string,i,typename): 
-    if isinstance(string,str) and isinstance(string,str):
-        if(typename == 'msg'):
-                # try:
-                #     import cPickle as pickle
-                # except ImportError:
-                #     import pickle
-                # d= open(string, 'a')
-                # datas=pickle.dump(i,d)
-                with open(string, 'ab') as d:
-                     d.write(str(i))
-        else:
-            with open(string, 'wb') as d:
-                if(typename == 'seq'):
-                    d.write(str(i)) 
-                elif(typename == 'key'):
-                    d.write(str(i))
-                else:
-                    print "write error!"
-        d.close()
-        return 1
-    else:
-        return -1
+    with open(string, 'wb') as d:
+        #if(typename == 'seq' or typename == 'key' or typename == 'state' or typename == 'msg'):
+        d.write(str(i)) 
+    d.close()
+    return 1
+
 def resetFile(string):
     f = open(string,'wb')
     f.truncate()
     return
 
 if __name__ == '__main__':
-    a = ['123','31131','asdas']
-    print readFile('test','msg')
+    json = readFile('config.json','json')
+    print json
+    print json['server_port']
+    #print json.dumps(json, indent=4)
