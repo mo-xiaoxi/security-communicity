@@ -20,7 +20,10 @@ def readFile(string,typename):
             elif(typename == 'key'):
                 data=d.read(64)
             elif(typename ==  'msg'):
-                data=d.read()
+                data=d.read
+            elif(typename == 'json'):
+                import json
+                data = json.loads(d.read())
             else:
                 print 'read error !please check it !'
         d.close()
@@ -58,5 +61,7 @@ def resetFile(string):
     return
 
 if __name__ == '__main__':
-    a = ['123','31131','asdas']
-    print readFile('test','msg')
+    json = readFile('config.json','json')
+    print json
+    print json['server_port']
+    #print json.dumps(json, indent=4)
