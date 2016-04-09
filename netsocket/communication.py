@@ -99,8 +99,147 @@ class Send():
         print "socket close"
         return 1
 
+#接受信息类
+class Rec():
+    def __init__(self,host,port):
+        ADDR = (host,port)#这里未加参数验证，后期需要修改，暂时不知道咋改
+        # 初始化UDP socket
+        try:
+            self.ser_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        except socket.error, msg:
+            print 'Failed to create socket. Error code: ' + str(msg[0]) + ' , Error message : ' + msg[1]
+        self.ser_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.ser_socket.bind(ADDR)
+
+        #读取配置文件
+        config = File.readFile('./netsocket/file/Rec/config.json','json')
+        self.keyFile = config['keyFile']
+        self.msgFile = config['msgFile']
+        self.SeqFile = config['SeqFile']
+        self.stateFile = config['stateFile']
+        self.time =config['time']
+        self.bufsiz = config['bufsiz']
+        
+        self.key = File.readFile(self.keyFile,'key')
+        self.seqRec = File.readFile(self.SeqFile,'num')
+        self.state= File.readFile(self.stateFile,'num')
+        self.kn = self.key[0:48]
+        print self.kn
+        self.kp = self.key[48:96]
+        print self.kp
+        self.end = False
+        
+        '''
+        self.bufsiz = 544
+        self.keyFile = './netsocket/file/Rec/key'
+        self.key = File.readFile(self.keyFile,'key')
+        self.kn = self.key[0:48]
+        self.kp = self.key[48:96]
+        self.recSeqFile = './netsocket/file/Rec/seq'
+        self.seqRec = File.readFile(self.recSeqFile,'seq')
+        self.msgFile = './netsocket/file/Rec/msg'
+        self.stateFile = './netsocket/file/Rec/state'
+        self.state = File.readFile(self.stateFile,'key')
+        '''
+
+    def ReceieveSecurity(self):
+        try:
+            #接收数据，发送者地址
+            message, cli_address = self.ser_socket.recvfrom(2048)
+            print 'hello'
+        except:
+            print "can't receieve all message !"
+            #traceback.print_exc()
+            
+        #解开数据包
+        #print message
+##            if len(message)!=1056:
+##                continue 
+        #将message与key生成ack和解密
+        data, s_ack= Cryption.decrypt(message,self.seqRec,self.kn)
+        print data
+        #信息正确可以处理
+        if (not(isinstance(data, bool))and data != False):
+            #解除填充
+            #tmp,i=packetFill.re_packetFill(data)
+            
+            #得到本地ack校验值
+            #s_ack =  hmac.hmac_md5(getNeededKey.getKey(self.kn,2), acktmp).hexdigest()
+            #tmp,i=packetFill.re_packetFill(data)
+            print "sequence sucessfully ,save it !"
+            self.seqRec =self.seqRec +1
+            #更新密钥
+            self.kp = self.kn
+            self.kn = Cryption.xor_string(self.kn,data)
+            self.key =self.kn + self.kp 
+            #print 'key',self.seqRec
+            #储存数据
+            File.writeFile(self.SeqFile,self.seqRec,'seq')
+            File.writeFile(self.keyFile,self.key,'key')
+            File.writeFile(self.msgFile,data,'msg')
+            #储存结束
+            #time.sleep(5)
+            self.ser_socket.sendto(s_ack, cli_address)#发送校验包
+            print "send to ",cli_address,"data:",s_ack
+            self.end = True
+            return data
+##            else:
+##                print "sequence error,we still send ack packet to client !"
+##                #time.sleep(5)
+##                self.ser_socket.sendto(s_ack, cli_address)
+##                print "send to ",cli_address,"data:",s_ack
+                
+        #发送了重复的信息，那么不保存只发送hmac，让客户端更新状态
+        else:#(i != (sequence+1)and (s_h==h)):
+            data, s_ack = Cryption.decrypt(message,self.seqRec,self.kp)
+            print data
+            if(not(isinstance(data, bool))and data != False):
+                 print "hmac(now) error,hmac(pass)right ,we still send ack packet to client !"
+                 self.ser_socket.sendto(s_ack, cli_address)
+                 print "send to ",cli_address,"data:",s_ack
+            else:
+                print "hmac(now) error,hmac(pass)error!"
+            #time.sleep(5)
+            #ser_socket.sendto(s_ack, cli_address)
+
+                    
+    def server(self,host,port):
+        #通过server开一个线程，在后台监听受到的信息,后期实现
+        #ReceieveSecurity
+        return
+    def aut_close(self):
+        print "all receieved !"
+        Rec = File.readFile(self.msgFile,'msg')
+        Rec = Rec[0:len(Rec)-3]
+        print "RecDATA:",Rec
+        self.ser_socket.close()
+        #重置序列值
+        File.writeFile(self.SeqFile,'-1','key')
+        File.resetFile(self.msgFile)
+    def man_close(self):
+        self.state == 1
+        File.writeFile(self.stateFile,self.state,'key')
+        self.ser_socket.close()
+        
+    def checkstate(self):
+        if self.state == 0 :
+            print "The last time receive success"
+            return 1
+        elif self.state == 1 :
+            try:
+                ReceieveSecurity()
+                self.state == 0
+                print "Last time receiving failure, update the status succeed"
+                return 1
+            except:
+                print "Last time receiving failure, update the status failed"
+                return 0
+
+                    
 if __name__ == '__main__':
+    '''
     Snd = Send('127.0.0.1',12345)
     Snd.checkState()
     Snd.SendSecurity('123')
+    '''
 

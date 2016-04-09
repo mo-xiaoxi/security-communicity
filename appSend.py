@@ -16,5 +16,5 @@ if __name__ == '__main__':
     com.SendSecurity('7')
     com.SendSecurity('8')
     com.SendSecurity('9')
-    com.SendSecurity('10')
+    com.SendSecurity('end')
     com.close

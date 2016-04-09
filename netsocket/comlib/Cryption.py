@@ -47,9 +47,9 @@ def decrypt(packet, seq,key):
         if int(m_seq) == int(seq) +1:
             return msg,ack
         else:
-            return -1,-1
+            return False,False
     else:
-        return -1, -1
+        return False, False
     
 '''
 key为hmac密钥，msg表示传入信息

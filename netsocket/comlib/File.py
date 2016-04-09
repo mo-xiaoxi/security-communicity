@@ -17,7 +17,7 @@ def readFile(string,typename):
             data=d.read()
             data=int(data)
         elif(typename == 'key'):
-            data=d.read(64)
+            data=d.read()
         elif(typename ==  'msg'):
             data=d.read()
         elif(typename == 'json'):
