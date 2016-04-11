@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 #random packet drop net_sim 
 #first packet must come from sender
 #cannot be reused across experiments
@@ -15,7 +17,7 @@ n_in_port_receiver = None
 local_addr = "127.0.0.1" 
 out_addr = None
 #parameters
-packet_loss_rate = 0#between 0 and 1
+packet_loss_rate = 0.1 #between 0 and 1
 max_packet_len = 1056
 
 
@@ -34,22 +36,21 @@ if __name__ == "__main__":
                 print("0ops ! packet dropped")
             else:
                 if n_in_port_sender == None:
-                    n_in_port_sender = in_addr[1]
+                    n_in_port_sender = in_addr[1]#得到发送者，发送使用的端口
                 elif in_addr[1] != n_in_port_sender and n_in_port_receiver == None:
-                    n_in_port_receiver = in_addr[1]
+                    n_in_port_receiver = in_addr[1] #得到接受方发送使用的端口
                 else:
                     pass
                 
                 if in_addr[1] == n_in_port_sender:
                     out_addr = (local_addr, n_egress_port_receiver)
                 elif in_addr[1] == n_in_port_receiver:
-                    out_addr = (local_addr, n_egress_port_sender)
+                    out_addr = (local_addr, n_in_port_sender)
                 else:
                     pass
                 print out_addr
                     
                 ss.sendto(data, out_addr)
-                print("received packet from " + str(in_addr))
                 print("forwarded to " + str(out_addr))
 
     except KeyboardInterrupt:

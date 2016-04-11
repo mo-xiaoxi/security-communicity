@@ -1,5 +1,5 @@
 {
-    "timeout":2,
+    "timeout":5,
     "bufsiz":2048,
     "reSendCount": 0,
     "keyFile":"./netsocket/file/Send/key",

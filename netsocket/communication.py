@@ -8,7 +8,6 @@ import sys
 import socket
 import struct 
 import thread
-import time  #just for test
 from comlib import File,Cryption
 
 

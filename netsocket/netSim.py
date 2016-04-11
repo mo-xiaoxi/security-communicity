@@ -1,52 +1,69 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#random packet drop net_sim 
+__Author__ = 'moxiaoxi'
+__Filename__ = 'netSim.py'
 
+'''
+用于网络测试，该版本测试代码只能线性测试代码，即必须先接受发送者发来的packet，
+再转发给接受者，然后接受接受者发来的ack，最后转发给发送者。期间，过程测试代码不
+接受发送者重发的数据
+'''
 import socket
 import random
 
-#program config 
-n_ingress_port = 40001 #port wait for sender 
-n_egress_port = 40003 #receiver port
+#config
+RecforSender = 40000 #接受来自发送者数据的端口。
+RecforReCer = None #接受来自接受者ack数据的端口  （未使用）
+ForwardtoRecer = 40002 #转发给接受者，即接受者监听的端口
+ForwardtoSender = None #转发给发送者的端口
 local_addr = "127.0.0.1" 
 
 #parameters
 packet_loss_rate = 0.1 #between 0 and 1
-max_packet_len = 2048
-
+packet_change_rate =0.5
+max_packet_len = 1056
+out_addr = None
+time = 3
 
 if __name__ == "__main__":
-    ss = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-    sr = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-    sr.bind((local_addr, n_ingress_port))
-    
+    RecSender = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)#接受发送者发来数据的socket
+    ForwardtoRec = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)#转发发送者数据到接受者的socket
+    ForwardtoSend = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)#转发接受者数据到发送者
+    RecSender.bind((local_addr, RecforSender))
+    ForwardtoRec.settimeout(time)
     try:
         while(True):
-            data_send, addr_send = sr.recvfrom(max_packet_len)
-            # if random.random() < packet_loss_rate:
-            #     pass
-            #     print("received packet from send:" + str(addr_send))
-            #     print 'data:',data_send
-            #     print("dropped")
-            # else:
-            ss.sendto(data_send, (local_addr, n_egress_port))
-            print("received packet from send:" + str(addr_send))
-            print 'data:',data_send
-            print("forwarded to Rec:" + str((local_addr, n_egress_port)))
-
-            data_Rec, addr_Rec = ss.recvfrom(max_packet_len)
-            # if random.random() < packet_loss_rate:
-            #     pass
-            #     print("received packet from Rec:" + str(addr_Rec))
-            #     print 'data:',data_Rec
-            #     print("dropped")
-            # else:
-            sr.sendto(data_Rec, (local_addr, n_ingress_port ))
-            print("received packet from Rec:" + str(addr_Rec))
-            print 'data:',data_Rec
-            print("forwarded to send:" + str((local_addr, n_ingress_port)))
+            packet, in_addr = RecSender.recvfrom(max_packet_len)
+            print("received packet from sender: " + str(in_addr))
+            print "packet :",packet
+            if random.random() < packet_loss_rate:
+                pass
+                print("0ops ! packet dropped")
+            else:
+                if(random.random() < packet_change_rate):
+                    print(" 0ops ! packet changged")
+                    packet='1'
+                if ForwardtoSender == None:
+                    ForwardtoSender = in_addr[1]#得到发送者，发送使用的端口
+                out_addr =(local_addr,ForwardtoRecer)  
+                ForwardtoRec.sendto(packet, out_addr)#转发数据给接受者
+                print("forwarded to receiver:" + str(out_addr))
+                try:
+                    ack, in_addr = ForwardtoRec.recvfrom(max_packet_len)#得到接受者返回的ack
+                    print("received ack from receiver:" + str(in_addr))
+                    print "ack :",ack
+                    if random.random() < packet_loss_rate:
+                        pass
+                        print("0ops ! ack dropped")
+                    else:
+                        out_addr =(local_addr,ForwardtoSender)  
+                        ForwardtoSend.sendto(ack, out_addr)#转发数据给发送者
+                        print("forwarded to sender:" + str(out_addr))
+                except socket.timeout:
+                    print "we can't receive anything from receiver in time. so, we think last packet lost!"
 
     except KeyboardInterrupt:
-        sr.close()
-        ss.close()
+        RecSender.close()
+        ForwardtoRec.close()
+        ForwardtoSend.close()
         print("caught ctrl + d or z or c or whatever......")

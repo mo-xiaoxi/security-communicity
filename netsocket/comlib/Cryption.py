@@ -32,7 +32,11 @@ def encrypt( msg, seq,key):
     return packet, ack
 
 def decrypt(packet, seq,key):
-    aesout, h = struct.unpack("<1024s32s", packet) 
+    try:
+        aesout, h = struct.unpack("<1024s32s", packet)
+    except: 
+        print 'packet has wrong format !'
+        return False,False
     aesout = getPrintdata(aesout)
     #生成AES
     aes = prpcrypt(getKey(key, 1))
@@ -42,6 +46,8 @@ def decrypt(packet, seq,key):
     msgtmp = aes.decrypt(aesout)
     #对msgtmp进行hmac
     s_h = hmac_md5(getKey(key,0), msgtmp).hexdigest()
+    print s_h
+    print h
     if s_h == h:
         msg,m_seq= re_packetFill(msgtmp)
         if int(m_seq) == int(seq) +1:
