@@ -57,6 +57,7 @@ class Send():
         File.writeFile(self.msgFile,msg,'msg')
         File.writeFile(self.stateFile,1,'state')
         packet,ack=Cryption.encrypt(msg,self.seq,self.key)
+        print 'data:',packet
         self.Sock.sendto(packet,self.ADDR)
         while True:
             try:
@@ -83,6 +84,7 @@ class Send():
                     print "ackmessage receieved:   ",ackmessage
                     print "ackmessage local:   ",ack
                     self.Sock.sendto(packet,self.ADDR)
+                    print 'packet:',packet
                     self.reSendCount = self.reSendCount + 1
                     if self.reSendCount > 10:
                         print "Failed to send  !something erorr ! please check the system !" 
@@ -91,6 +93,7 @@ class Send():
                 print "timeout,send again"
                 self.Sock.sendto(packet,self.ADDR) 
                 self.reSendCount = self.reSendCount + 1
+                print 'packet:',packet
                 #超时重发 这里还需要做一个多次重发，直接放弃的丢包
                 if self.reSendCount > 10:
                     print "Failed to send !something erorr ! please check the system !" 
@@ -146,6 +149,7 @@ class Rec():
         try:
             #接收数据，发送者地址
             message, cli_address = self.ser_socket.recvfrom(2048)
+            print 'data:',message
         except:
             print "can't receieve all message !"
             traceback.print_exc()

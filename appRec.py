@@ -2,8 +2,16 @@
 # -*- coding: utf-8 -*-
 from netsocket import communication
 if __name__ == '__main__':
-    com=communication.Rec('localhost',40001)
+    com=communication.Rec('localhost',40003)
     com.checkstate()
-    while (str != 'end'):
-        str=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
+    msg=com.ReceieveSecurity()
     com.aut_close()
