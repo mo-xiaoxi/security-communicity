@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from netsocket import communication
 if __name__ == '__main__':
-    com=communication.Rec('localhost',40003)
+    com=communication.Rec('localhost',40002)
     com.checkstate()
     msg=com.ReceieveSecurity()
     msg=com.ReceieveSecurity()

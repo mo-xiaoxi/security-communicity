@@ -5,7 +5,7 @@ __Filename__ = 'appSend.py'
 from netsocket import communication
 
 if __name__ == '__main__':
-    com=communication.Send('127.0.0.1',40001)
+    com=communication.Send('127.0.0.1',40000)
     com.checkState()
     com.SendSecurity('1')
     com.SendSecurity('2')

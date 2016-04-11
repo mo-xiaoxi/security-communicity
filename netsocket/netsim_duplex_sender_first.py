@@ -13,10 +13,10 @@ n_egress_port_receiver = 40002 #receiver port to receive packet
 n_in_port_sender = None
 n_in_port_receiver = None
 local_addr = "127.0.0.1" 
-
+out_addr = None
 #parameters
-packet_loss_rate = 0.1 #between 0 and 1
-max_packet_len = 1024
+packet_loss_rate = 0#between 0 and 1
+max_packet_len = 1056
 
 
 if __name__ == "__main__":
@@ -27,10 +27,11 @@ if __name__ == "__main__":
     try:
         while(True):
             data, in_addr = sr.recvfrom(max_packet_len)
+            print("received packet from " + str(in_addr))
+            print "packet :",data
             if random.random() < packet_loss_rate:
                 pass
-                print("received packet from " + str(in_addr))
-                print("dropped")
+                print("0ops ! packet dropped")
             else:
                 if n_in_port_sender == None:
                     n_in_port_sender = in_addr[1]
@@ -39,14 +40,15 @@ if __name__ == "__main__":
                 else:
                     pass
                 
-                if in_addr == n_in_port_sender:
+                if in_addr[1] == n_in_port_sender:
                     out_addr = (local_addr, n_egress_port_receiver)
-                elif in_addr == n_in_port_receiver:
+                elif in_addr[1] == n_in_port_receiver:
                     out_addr = (local_addr, n_egress_port_sender)
                 else:
                     pass
+                print out_addr
                     
-                ss.send(data, out_addr)
+                ss.sendto(data, out_addr)
                 print("received packet from " + str(in_addr))
                 print("forwarded to " + str(out_addr))
 
