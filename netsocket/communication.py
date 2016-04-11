@@ -56,7 +56,6 @@ class Send():
         File.writeFile(self.msgFile,msg,'msg')
         File.writeFile(self.stateFile,1,'state')
         packet,ack=Cryption.encrypt(msg,self.seq,self.key)
-        print 'data:',packet
         self.Sock.sendto(packet,self.ADDR)
         while True:
             try:
@@ -74,16 +73,12 @@ class Send():
                     File.writeFile(self.SeqFile,self.seq,'seq')
                     File.writeFile(self.keyFile,self.key,'key')
                     File.writeFile(self.stateFile,0,'state')
-                    #time.sleep(1)
                     print 'save successful !'
                     #保存操作结束
                     return True#表示发送成功
                 else:
                     print "ack data error,send again"
-                    print "ackmessage receieved:   ",ackmessage
-                    print "ackmessage local:   ",ack
                     self.Sock.sendto(packet,self.ADDR)
-                    print 'packet:',packet
                     self.reSendCount = self.reSendCount + 1
                     if self.reSendCount > 10:
                         print "Failed to send  !something erorr ! please check the system !" 
@@ -92,7 +87,6 @@ class Send():
                 print "timeout,send again"
                 self.Sock.sendto(packet,self.ADDR) 
                 self.reSendCount = self.reSendCount + 1
-                print 'packet:',packet
                 #超时重发 这里还需要做一个多次重发，直接放弃的丢包
                 if self.reSendCount > 10:
                     print "Failed to send !something erorr ! please check the system !" 
@@ -100,7 +94,7 @@ class Send():
     def close(self):
         self.Sock.close()
         print "socket close"
-        File.writeFile(self.SeqFile,'0','num')
+        #File.writeFile(self.SeqFile,'0','num')
         return 1
 
 #接受信息类
@@ -148,13 +142,12 @@ class Rec():
         try:
             #接收数据，发送者地址
             message, cli_address = self.ser_socket.recvfrom(2048)
-            print 'data:',message
         except:
-            print "can't receieve all message !"
-            traceback.print_exc()
+            print "we haven't receieve all message !"
+            print "caught ctrl + d or z or c or whatever......"
+            sys.exit(-1)
         #将message与key生成ack和解密
         data, s_ack= Cryption.decrypt(message,self.seqRec,self.kn)
-        print data
         #信息正确可以处理
         if (not(isinstance(data, bool))and data != False):
             self.seqRec =self.seqRec +1
@@ -163,7 +156,6 @@ class Rec():
             self.kp = self.kn
             self.kn = Cryption.xor_string(self.kn,data)
             self.key =self.kn + self.kp
-            #print 'key',self.seqRec
             #储存数据
             File.writeFile(self.SeqFile,self.seqRec,'seq')
             File.writeFile(self.keyFile,self.key,'key')
@@ -174,8 +166,7 @@ class Rec():
             return data
         #发送了重复的信息，那么不保存只发送hmac，让客户端更新状态
         else:#(i != (sequence+1)and (s_h==h)):
-            data, s_ack = Cryption.decrypt(message,self.seqRec,self.kp)
-            print data
+            data, s_ack = Cryption.decrypt(message,self.seqRec-1,self.kp)
             if(not(isinstance(data, bool))and data != False):
                  print "hmac(now) error,hmac(pass)right ,we still send ack packet to client !"
                  self.ser_socket.sendto(s_ack, cli_address)
@@ -187,7 +178,7 @@ class Rec():
         print "receieved close !"
         self.ser_socket.close()
         #重置序列值
-        File.writeFile(self.SeqFile,'-1','num')
+        #File.writeFile(self.SeqFile,'-1','num')
         # File.resetFile(self.msgFile)
     def man_close(self):
         self.state == 1

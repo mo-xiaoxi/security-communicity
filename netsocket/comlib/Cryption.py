@@ -46,8 +46,6 @@ def decrypt(packet, seq,key):
     msgtmp = aes.decrypt(aesout)
     #对msgtmp进行hmac
     s_h = hmac_md5(getKey(key,0), msgtmp).hexdigest()
-    print s_h
-    print h
     if s_h == h:
         msg,m_seq= re_packetFill(msgtmp)
         if int(m_seq) == int(seq) +1:
