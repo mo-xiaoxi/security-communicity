@@ -3,7 +3,6 @@
 __Author__ = 'moxiaoxi'
 __Filename__ = 'appSend.py'
 from netsocket import communication
-import time #just for test
 if __name__ == '__main__':
     com=communication.Send('127.0.0.1',40000)
     com.checkState()
