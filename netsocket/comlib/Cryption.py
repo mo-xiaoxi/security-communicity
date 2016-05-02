@@ -13,6 +13,9 @@ from itertools import cycle, izip
 import struct 
 import random
 
+MAX_SEQUENCE_NUMBER=512#感觉这里还得封装成一个类，暂时没时间改
+
+
 '''
 整体包加解密函数
 '''
@@ -48,7 +51,7 @@ def decrypt(packet, seq,key):
     s_h = hmac_md5(getKey(key,0), msgtmp).hexdigest()
     if s_h == h:
         msg,m_seq= re_packetFill(msgtmp)
-        if int(m_seq) == int(seq) +1:
+        if int(m_seq)%0xFF == (int(seq) +1)%0xFF:
             return msg,ack
         else:
             return False,False

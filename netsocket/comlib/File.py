@@ -26,6 +26,7 @@ def readFile(string,typename):
         else:
             print 'read error !please check it !'
     d.close()
+    print data
     return data
     
 

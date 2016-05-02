@@ -63,11 +63,11 @@ class Send():
                 if ackmessage==ack:
                     print 'ack successful ! send next packet'#验证校验包
                     self.key=Cryption.xor_string(self.key,msg)
-                    self.seq=self.seq+1
+                    self.seq=(self.seq+1)%0xFF
                     self.reSendCount = 0
-                    #序列值循环
-                    if self.seq == 0xFF:
-                        self.seq = 1#这里存在一个循环溢出，断电后无法定位的问题！还未解决
+                    # #序列值循环
+                    # if self.seq == 0xFF:
+                    #     self.seq = 1#这里存在一个循环溢出，断电后无法定位的问题！还未解决
                     print 'seq and key update successful , we save it !'
                     #保存操作
                     File.writeFile(self.SeqFile,self.seq,'seq')
@@ -150,7 +150,9 @@ class Rec():
         data, s_ack= Cryption.decrypt(message,self.seqRec,self.kn)
         #信息正确可以处理
         if (not(isinstance(data, bool))and data != False):
-            self.seqRec =self.seqRec +1
+            self.seqRec = (self.seqRec +1)%0xFF
+            # if self.seqRec == 0xFF:
+            #     self.seqRec = 1#这里存在一个循环溢出，断电后无法定位的问题！还未解决
             print "sequence sucessfully ,save it !"
             #更新密钥
             self.kp = self.kn
