@@ -6,16 +6,16 @@ __Filename__ = 'Cryption.py'
 所有加解密操作均在该文件中实现
 外部只需要调用调用encrypt与decrypt函数即可。
 '''
+
 from Crypto.Cipher import AES
+from Crypto import Random
 from binascii import b2a_hex, a2b_hex
-from hashlib import md5
+import hmac
 from itertools import cycle, izip
 import struct 
-import random
 
 MAX_SEQUENCE_NUMBER=512#感觉这里还得封装成一个类，暂时没时间改
 PACKET_SIZE=1024
-
 '''
 整体包加解密函数
 '''
@@ -30,39 +30,56 @@ def encrypt( msg, seq,key):
     #对message进行aes加密
     aesout = aes.encrypt(msgtmp)
     #对message进行hmac
-    h = hmac_md5(getKey(key, 0), msgtmp).hexdigest()
+    h = hmac_md5(getKey(key, 0), msgtmp)
     #得到本地ack校验值
-    ack = hmac_md5(getKey(key, 2), m_exchange(aesout)).hexdigest()
+    ack = hmac_md5(getKey(key, 2), m_exchange(aesout))
     #打包成发送数据格式 AES加密后数据（最大512位）＋HMAC输出（32位）
     if len(aesout) > PACKET_SIZE:
         raise ValueError("Data length should be less than of {}  but {} is given".format(PACKET_SIZE, len(aesout)))
     packet = struct.pack("<1536s32s", aesout, h)
-    return packet, ack
-
-def decrypt(packet, seq,key):
+    print "msgtmp:    ",msgtmp
+    print "aesout",aesout
+    print "h",h
+    print "getKey(key,0)",getKey(key, 0)
+    print "ack",ack
+    print "packet",packet
+    return packet, ack,aesout
+'''
+若包格式错误，直接返回packet,"format wrong",False
+若hmac校验错误，返回msg,"hmac wrong",False
+若seq校验错误，返回msg,"hmac wrong",False
+'''
+def decrypt(packet, seq,key,aesout):
     try:
-        aesout, h = struct.unpack("<1536s32s", packet)
+        aesout1, h = struct.unpack("<1536s32s", packet)
     except: 
         print 'packet has wrong format !'
-        return False,False
-    aesout = getPrintdata(aesout)
+        return packet,"format wrong",False
+    #aesout = getPrintdata(aesout)
     #生成AES
     aes = prpcrypt(getKey(key, 1))
     #得到ack返回值
-    ack = hmac_md5(getKey(key, 2), m_exchange(aesout)).hexdigest()
+    ack = hmac_md5(getKey(key, 2), m_exchange(aesout))
     #解密文件包
     msgtmp = aes.decrypt(aesout)
     #对msgtmp进行hmac
-    s_h = hmac_md5(getKey(key,0), msgtmp).hexdigest()
+    s_h = hmac_md5(getKey(key,0), msgtmp)
+    print "aesout",aesout
+    print "h:",h
+    print "getKey(key,0)",getKey(key,0)
+    print "ack",ack
+    print "msgtmp,",msgtmp
+    print "s_h",s_h
     if s_h == h:
         msg,m_seq= re_packetFill(msgtmp)
-        print '111',m_seq,seq
+        print "msg",msg
+        print "m_seq",m_seq
         if int(m_seq) == (int(seq) +1)%0xFF:
-            return msg,ack
+            return msg,ack,True
         else:
-            return False,False
+            return msg,"seq wrong",False
     else:
-        return False, False
+        return msgtmp,"hmac wrong",False
     
 '''
 key为hmac密钥，msg表示传入信息
@@ -72,19 +89,28 @@ print h.hexdigest()#99f6545ceecfc05cf7751c2e6a30715d
 '''
 
 
-trans_5C = "".join(chr(x ^ 0x5c) for x in xrange(256))
-trans_36 = "".join(chr(x ^ 0x36) for x in xrange(256))
-blocksize = md5().block_size
+# trans_5C = "".join(chr(x ^ 0x5c) for x in xrange(256))
+# trans_36 = "".join(chr(x ^ 0x36) for x in xrange(256))
+# blocksize = md5().block_size
+
+# def hmac_md5(key, msg):
+#   if len(key) > blocksize:
+#     key = md5(key).digest()
+#   key += chr(0) * (blocksize - len(key))
+#   o_key_pad = key.translate(trans_5C)
+#   i_key_pad = key.translate(trans_36)
+#   return md5(o_key_pad + md5(i_key_pad + msg).digest())
 
 def hmac_md5(key, msg):
-  if len(key) > blocksize:
-    key = md5(key).digest()
-  key += chr(0) * (blocksize - len(key))
-  o_key_pad = key.translate(trans_5C)
-  i_key_pad = key.translate(trans_36)
-  return md5(o_key_pad + md5(i_key_pad + msg).digest())
-
-
+    print "hmac start!!!!!!!!!!!!!!!!!!!!!!!!\n"
+    print "key:",key
+    print "msg:",msg
+    myhmac = hmac.new(bytes(key))
+    myhmac.update(bytes(msg))
+    print "hmac:",myhmac.hexdigest()
+    #print "hmac:",myhmac.encode('hex')
+    print "hmac ended !!!!!!!!!!!!!!!!"
+    return myhmac.hexdigest()
 
 '''
 每次传入message信息与key异或处理生成新的密钥_key。
@@ -105,10 +131,6 @@ def keyExpand(key,message):
     #message=message[0:48]
     _key = ''.join(chr((ord(c)^ord(k))) for c,k in izip(key, cycle(message)))
     # print('%s ^ %s = %s' % (message, key, cyphered))
-    print "keybefore:",key
-    print len(key)
-    print "keyafter:",_key  
-    print len(_key)  
     return _key
 
 
@@ -228,38 +250,40 @@ def getPrintdata(str):
 
 '''
 AES实现
-from cryption import aes
-#test aes
-key = '1234567891234567'  # Store this somewhere safe
-aestest = aes.prpcrypt(key)
-ciphertext = aestest.encrypt('M1')
-print ciphertext
-plaintext = aestest.decrypt(ciphertext)
-print plaintext
 '''
-class prpcrypt():
-    def __init__(self, key):
-        self.key = key
-        self.mode = AES.MODE_CBC
+
+
+BS = 16
+pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
+unpad = lambda s : s[0:-ord(s[-1])]
+
+class AESCipher:
+    def __init__( self, key ):
+        """
+        Requires hex encoded param as a key
+        """
+        self.key = key.decode("hex")
+        print len(self.key)
+
+    def encrypt( self, raw ):
+        """
+        Returns hex encoded encrypted value!
+        """
+        raw = pad(raw)
+        iv = Random.new().read(AES.block_size);
+        cipher = AES.new( self.key, AES.MODE_CBC, iv )
+        return ( iv + cipher.encrypt( raw ) ).encode("hex")
+
+    def decrypt( self, enc ):
+        """
+        Requires hex encoded param to decrypt
+        """
+        enc = enc.decode("hex")
+        iv = enc[:16]
+        enc= enc[16:]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv )
+        return unpad(cipher.decrypt( enc))
      
-    #加密函数，如果text不是16的倍数【加密文本text必须为16的倍数！】，那就补足为16的倍数
-    def encrypt(self, text):
-        cryptor = AES.new(self.key, self.mode, self.key)
-        #这里密钥key 长度必须为16（AES-128）、24（AES-192）、或32（AES-256）Bytes 长度.目前AES-128足够用
-        length = 16
-        count = len(text)
-        add = length - (count % length)
-        text = text + ('\0' * add)
-        self.ciphertext = cryptor.encrypt(text)
-        #因为AES加密时候得到的字符串不一定是ascii字符集的，输出到终端或者保存时候可能存在问题
-        #所以这里统一把加密后的字符串转化为16进制字符串
-        return b2a_hex(self.ciphertext)
-     
-    #解密后，去掉补足的空格用strip() 去掉
-    def decrypt(self, text):
-        cryptor = AES.new(self.key, self.mode, self.key)
-        plain_text = cryptor.decrypt(a2b_hex(text))
-        return plain_text.rstrip('\0')
 
 
 

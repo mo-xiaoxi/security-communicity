@@ -1,35 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from Crypto.Cipher import AES
-from binascii import b2a_hex, a2b_hex
-from hashlib import md5
-from itertools import cycle, izip
-import struct 
-import random
-class prpcrypt():
-    def __init__(self, key):
-        self.key = key
-        self.mode = AES.MODE_CBC
-     
-    #加密函数，如果text不是16的倍数【加密文本text必须为16的倍数！】，那就补足为16的倍数
-    def encrypt(self, text):
-        cryptor = AES.new(self.key, self.mode, self.key)
-        #这里密钥key 长度必须为16（AES-128）、24（AES-192）、或32（AES-256）Bytes 长度.目前AES-128足够用
-        length = 16
-        count = len(text)
-        add = length - (count % length)
-        text = text + ('\0' * add)
-        self.ciphertext = cryptor.encrypt(text)
-        #因为AES加密时候得到的字符串不一定是ascii字符集的，输出到终端或者保存时候可能存在问题
-        #所以这里统一把加密后的字符串转化为16进制字符串
-        return b2a_hex(self.ciphertext)
-     
-    #解密后，去掉补足的空格用strip() 去掉
-    def decrypt(self, text):
-        cryptor = AES.new(self.key, self.mode, self.key)
-        plain_text = cryptor.decrypt(a2b_hex(text))
-        return plain_text.rstrip('\0')
 
-aes=prpcrypt('1234567891234567')
-message=''.join(chr(random.randint(0, 0xFF)) for i in range(512))
-print len(aes.encrypt(message))#0~15 32 16~31 64
+
+aesout 5ef2243128c09faf5830bbc110ba0142ae60ec9fd934fe5bec06c6a1d8b191df9cd774552644067b76699e39b7e29dd4b4b1ccc48f304e8f0e03450d92506491e3b9ab446f18b5c42e0ef132f8f38b148d07a17fbb687300cb9486ed9644a0c92dc518098f9d2abe80cce5b4b9c4110961a6b38d7203a8dfc968b75a6fe2d6c18cfa8c6fcb02c1a5296c49dc0b94093bc1305e7b23dd55268a32b5b50b18ba0f714b6cc8714cb4cfc74af4becb7a499ac0d55d5c45e62f73618924029f4fe467
+h d85235e07c17c9c7bd55d10082432648
+aesout 5ef2243128c09faf5830bbc110ba0142ae60ec9fd934fe5bec06c6a1d8b191df9cd774552644067b76699e39b7e29dd4b4b1ccc48f304e8f0e03450d92506491e3b9ab446f18b5c42e0ef132f8f38b148d07a17fbb687300cb9486ed9644a0c92dc518098f9d2abe80cce5b4b9c4110961a6b38d7203a8dfc968b75a6fe2d6c18cfa8c6fcb02c1a5296c49dc0b94093bc1305e7b23dd55268a32b5b50b18ba0f714b6cc8714cb4cfc74af4becb7a499ac0d55d5c45e62f73618924029f4fe467
+h: d85235e07c17c9c7bd55d10082432648
+getKey(key,0) 1234567891234567
+ack 4db032407fc4c629553025881acd5f49
+msgtmp, 0000000200000100V#?W??Ք???z#/?
+??}??n?.ְ?
+????p*Z~l?%?јz???=/l?ǽh?????)/s??\n?\h2
+???j1>????*??H25?A??Ӌm?Q??O?b??J?avɲ?ҋ?|
+
+s_h 7493fa9e3d800bb7e286973de450565a
+error
+msg1 V#?W??Ք???z#/?
+??}??n?.ְ?
+????p*Z~l?%?јz???=/l?ǽh?????)/s??\n?\h2
+^*?'-f??+1H?%??
+msg2 0000000200000100V#?W??Ք???z#/?
+??}??n?.ְ?
+????p*Z~l?%?јz???=/l?ǽh?????)/s??\n?\h2
+???j1>????*??H25?A??Ӌm?Q??O?b??J?avɲ?ҋ?|
