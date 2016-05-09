@@ -14,12 +14,15 @@ import struct
 import random
 
 MAX_SEQUENCE_NUMBER=512#感觉这里还得封装成一个类，暂时没时间改
-
+PACKET_SIZE=1024
 
 '''
 整体包加解密函数
 '''
 def encrypt( msg, seq,key):
+    if int(seq) >= MAX_SEQUENCE_NUMBER:
+        raise ValueError("Sequence Number must be smaller than {} but {} is given"
+            .format(MAX_SEQUENCE_NUMBER, seq))
     #包填充
     msgtmp=packetFill(msg,seq)
     #使用key的中间三分之一进行aes加密（下面生成一个AES加解密器）
@@ -31,12 +34,14 @@ def encrypt( msg, seq,key):
     #得到本地ack校验值
     ack = hmac_md5(getKey(key, 2), m_exchange(aesout)).hexdigest()
     #打包成发送数据格式 AES加密后数据（最大512位）＋HMAC输出（32位）
-    packet = struct.pack("<1024s32s", aesout, h)
+    if len(aesout) > PACKET_SIZE:
+        raise ValueError("Data length should be less than of {}  but {} is given".format(PACKET_SIZE, len(aesout)))
+    packet = struct.pack("<1536s32s", aesout, h)
     return packet, ack
 
 def decrypt(packet, seq,key):
     try:
-        aesout, h = struct.unpack("<1024s32s", packet)
+        aesout, h = struct.unpack("<1536s32s", packet)
     except: 
         print 'packet has wrong format !'
         return False,False
@@ -51,7 +56,8 @@ def decrypt(packet, seq,key):
     s_h = hmac_md5(getKey(key,0), msgtmp).hexdigest()
     if s_h == h:
         msg,m_seq= re_packetFill(msgtmp)
-        if int(m_seq)%0xFF == (int(seq) +1)%0xFF:
+        print '111',m_seq,seq
+        if int(m_seq) == (int(seq) +1)%0xFF:
             return msg,ack
         else:
             return False,False
@@ -94,12 +100,15 @@ _KPTR   ZGRU\
 '''
 
 
-def xor_string(message, key):
+def keyExpand(key,message):
     
     #message=message[0:48]
-    _key = ''.join(chr((ord(c)^ord(k))) for c,k in izip(message, cycle(key)))
+    _key = ''.join(chr((ord(c)^ord(k))) for c,k in izip(key, cycle(message)))
     # print('%s ^ %s = %s' % (message, key, cyphered))
-    
+    print "keybefore:",key
+    print len(key)
+    print "keyafter:",_key  
+    print len(_key)  
     return _key
 
 

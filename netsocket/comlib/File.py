@@ -35,6 +35,7 @@ def writeFile(string,i,typename):
     with open(string, 'wb') as d:
         #if(typename == 'seq' or typename == 'key' or typename == 'state' or typename == 'msg'):
         d.write(str(i)) 
+        d.flush()
     d.close()
     return 1
 

@@ -17,9 +17,10 @@ if __name__ == '__main__':
     # com.SendSecurity('8')
     # com.SendSecurity('9')
     # com.SendSecurity('end')
-    for i in range(0,255):
-        length_=random.randint(0,0xFF)
-        message=''.join(chr(random.randint(0, 0xFF)) for i in range(length_))
-        com.SendSecurity(message)
+    for i in range(0,255):#发送的消息不能为0
+        message=""
+        length=random.randint(1,0xFF)
+        message=''.join(chr(random.randint(0, 0xFF)) for i in range(100))
+        com.SendSecurity(message)#这里出错，记得处理
     com.SendSecurity('end')
     com.close()
