@@ -84,46 +84,16 @@ def decrypt(packet, seq,key):
     
 '''
 key为hmac密钥，msg表示传入信息
-rom cryption import hmac
-h = hmac.hmac_md5("key", "Im ted")
-print h.hexdigest()#99f6545ceecfc05cf7751c2e6a30715d
 '''
 
-
-# trans_5C = "".join(chr(x ^ 0x5c) for x in xrange(256))
-# trans_36 = "".join(chr(x ^ 0x36) for x in xrange(256))
-# blocksize = md5().block_size
-
-# def hmac_md5(key, msg):
-#   if len(key) > blocksize:
-#     key = md5(key).digest()
-#   key += chr(0) * (blocksize - len(key))
-#   o_key_pad = key.translate(trans_5C)
-#   i_key_pad = key.translate(trans_36)
-#   return md5(o_key_pad + md5(i_key_pad + msg).digest())
-
 def hmac_md5(key, msg):
-    print "hmac start!!!!!!!!!!!!!!!!!!!!!!!!\n"
-    print "key:",key
-    print "msg:",msg
     myhmac = hmac.new(bytes(key))
     myhmac.update(bytes(msg))
-    print "hmac:",myhmac.hexdigest()
-    #print "hmac:",myhmac.encode('hex')
-    print "hmac ended !!!!!!!!!!!!!!!!"
     return myhmac.hexdigest()
 
 '''
 每次传入message信息与key异或处理生成新的密钥_key。
 然后返回_key
-
-#test  keyExpand
-k="1231231231231231"
-m="m1"
-
->>> 
-_KPTR   ZGRU\
-
 '''
 
 
@@ -141,14 +111,6 @@ def keyExpand(key,message):
 当i＝1时，取key中间三分之一
 当i＝2时，取key后三分之一
 当i不为上述情况或者i和key类型不符合时，raise 输入参数错误
-from cryption import getNeededKey
-key = '123456789qwertyuio'
-for i in range(3):
-    an = getNeededKey.getNeededkey1(key,i)
-    print an
-#123456
-#789qwe
-#rtyuio
 '''
 def getKey(key,i):
     l=len(key)
@@ -170,12 +132,6 @@ def getKey(key,i):
 每次传入一个message
 此message必须为偶数，否则爆出异常
 当为偶数时候将message一分为二前后交换顺序
-
-#test  messageExchangge
-print messageExchangge.m_exchange("abcdefsdfswerd")
-
->>> 
-dfswerdabcdefs
 '''
 
 
