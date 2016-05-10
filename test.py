@@ -1,25 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from Crypto.Cipher import AES
+from Crypto.Hash import SHA256
 
-aesout 5ef2243128c09faf5830bbc110ba0142ae60ec9fd934fe5bec06c6a1d8b191df9cd774552644067b76699e39b7e29dd4b4b1ccc48f304e8f0e03450d92506491e3b9ab446f18b5c42e0ef132f8f38b148d07a17fbb687300cb9486ed9644a0c92dc518098f9d2abe80cce5b4b9c4110961a6b38d7203a8dfc968b75a6fe2d6c18cfa8c6fcb02c1a5296c49dc0b94093bc1305e7b23dd55268a32b5b50b18ba0f714b6cc8714cb4cfc74af4becb7a499ac0d55d5c45e62f73618924029f4fe467
-h d85235e07c17c9c7bd55d10082432648
-aesout 5ef2243128c09faf5830bbc110ba0142ae60ec9fd934fe5bec06c6a1d8b191df9cd774552644067b76699e39b7e29dd4b4b1ccc48f304e8f0e03450d92506491e3b9ab446f18b5c42e0ef132f8f38b148d07a17fbb687300cb9486ed9644a0c92dc518098f9d2abe80cce5b4b9c4110961a6b38d7203a8dfc968b75a6fe2d6c18cfa8c6fcb02c1a5296c49dc0b94093bc1305e7b23dd55268a32b5b50b18ba0f714b6cc8714cb4cfc74af4becb7a499ac0d55d5c45e62f73618924029f4fe467
-h: d85235e07c17c9c7bd55d10082432648
-getKey(key,0) 1234567891234567
-ack 4db032407fc4c629553025881acd5f49
-msgtmp, 0000000200000100V#?W??Ք???z#/?
-??}??n?.ְ?
-????p*Z~l?%?јz???=/l?ǽh?????)/s??\n?\h2
-???j1>????*??H25?A??Ӌm?Q??O?b??J?avɲ?ҋ?|
+def sha1(text):
+    s = SHA256.new()
+    s.update(text)
+    return s.hexdigest()
 
-s_h 7493fa9e3d800bb7e286973de450565a
-error
-msg1 V#?W??Ք???z#/?
-??}??n?.ְ?
-????p*Z~l?%?јz???=/l?ǽh?????)/s??\n?\h2
-^*?'-f??+1H?%??
-msg2 0000000200000100V#?W??Ք???z#/?
-??}??n?.ְ?
-????p*Z~l?%?јz???=/l?ǽh?????)/s??\n?\h2
-???j1>????*??H25?A??Ӌm?Q??O?b??J?avɲ?ҋ?|
+aes = AES.new('JG9A90cqiveJ8K7n', AES.MODE_CFB, 'g4vhFIR1KncRIyvO')
+
+text = 'This is some text that will be encrypted'
+encrypted_text = aes.encrypt(text)
+
+aes = AES.new('JG9A90cqiveJ8K7n', AES.MODE_CFB, 'g4vhFIR1KncRIyvO')
+decrypted_text = aes.decrypt(encrypted_text)
+
+print 'Original:\t' + sha1(text)
+print 'Encrypted:\t' + sha1(encrypted_text)
+print 'Decrypted:\t' + sha1(decrypted_text)

@@ -12,7 +12,8 @@ from Crypto import Random
 from binascii import b2a_hex, a2b_hex
 import hmac
 from itertools import cycle, izip
-import struct 
+import struct
+import random 
 
 MAX_SEQUENCE_NUMBER=512#感觉这里还得封装成一个类，暂时没时间改
 PACKET_SIZE=1024
@@ -26,7 +27,7 @@ def encrypt( msg, seq,key):
     #包填充
     msgtmp=packetFill(msg,seq)
     #使用key的中间三分之一进行aes加密（下面生成一个AES加解密器）
-    aes = prpcrypt(getKey(key,1))
+    aes = AESCipher(getKey(key,1))
     #对message进行aes加密
     aesout = aes.encrypt(msgtmp)
     #对message进行hmac
@@ -43,21 +44,21 @@ def encrypt( msg, seq,key):
     print "getKey(key,0)",getKey(key, 0)
     print "ack",ack
     print "packet",packet
-    return packet, ack,aesout
+    return packet, ack
 '''
 若包格式错误，直接返回packet,"format wrong",False
 若hmac校验错误，返回msg,"hmac wrong",False
 若seq校验错误，返回msg,"hmac wrong",False
 '''
-def decrypt(packet, seq,key,aesout):
+def decrypt(packet, seq,key):
     try:
-        aesout1, h = struct.unpack("<1536s32s", packet)
+        aesout, h = struct.unpack("<1536s32s", packet)
     except: 
         print 'packet has wrong format !'
         return packet,"format wrong",False
-    #aesout = getPrintdata(aesout)
+    aesout = getPrintdata(aesout)
     #生成AES
-    aes = prpcrypt(getKey(key, 1))
+    aes = AESCipher(getKey(key, 1))
     #得到ack返回值
     ack = hmac_md5(getKey(key, 2), m_exchange(aesout))
     #解密文件包
@@ -127,11 +128,12 @@ _KPTR   ZGRU\
 
 
 def keyExpand(key,message):
-    
     #message=message[0:48]
+    l=len(key)
+    key.decode("hex")
     _key = ''.join(chr((ord(c)^ord(k))) for c,k in izip(key, cycle(message)))
     # print('%s ^ %s = %s' % (message, key, cyphered))
-    return _key
+    return _key.encode("hex")[:l]
 
 
 '''
@@ -155,9 +157,9 @@ def getKey(key,i):
         if(i==0):
             return key[0:l]
         elif(i==1):
-            return key[l:2*l]
+            return key[0:2*l]
         elif(i==2):
-            return key[2*l:3*l]
+            return key[3*l:4*l]
         else:
             raise ValueError('2the  argument not allowed')
     else:
@@ -252,26 +254,19 @@ def getPrintdata(str):
 AES实现
 '''
 
-
-BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
-unpad = lambda s : s[0:-ord(s[-1])]
-
 class AESCipher:
     def __init__( self, key ):
         """
         Requires hex encoded param as a key
         """
         self.key = key.decode("hex")
-        print len(self.key)
 
     def encrypt( self, raw ):
         """
         Returns hex encoded encrypted value!
         """
-        raw = pad(raw)
         iv = Random.new().read(AES.block_size);
-        cipher = AES.new( self.key, AES.MODE_CBC, iv )
+        cipher = AES.new( self.key, AES.MODE_CFB, iv )
         return ( iv + cipher.encrypt( raw ) ).encode("hex")
 
     def decrypt( self, enc ):
@@ -281,15 +276,15 @@ class AESCipher:
         enc = enc.decode("hex")
         iv = enc[:16]
         enc= enc[16:]
-        cipher = AES.new(self.key, AES.MODE_CBC, iv )
-        return unpad(cipher.decrypt( enc))
+        cipher = AES.new(self.key, AES.MODE_CFB, iv )
+        return cipher.decrypt( enc)
      
 
 
 
 if __name__ == "__main__":
     msg='123456'
-    key='123456789123456712345678912345671234567891234567'
+    key='123456789123456712345678912345671234567891234567123456789123456712345678912345671234567891234567'
     c_seq='1'
     packet,c_ack = encrypt(msg,c_seq,key)
     print packet,c_ack
