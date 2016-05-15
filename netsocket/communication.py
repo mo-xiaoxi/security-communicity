@@ -7,8 +7,9 @@ __Filename__ = 'communication.py'
 import sys
 import socket
 import struct 
-from comlib import File,Cryption
+from comlib import File,Cryption,Common
 MAX_RESEND_COUNT=10
+
 
 #发送信息类
 class Send():
@@ -40,7 +41,7 @@ class Send():
     def checkState(self):
         if(self.state==0):
             return 0#表示上次发送成功
-        elif(self.state==1):
+        elif(self.state==SUCC):
             msg=File.readFile(self.msgFile,'msg')
             if(self.SendSecurity(msg) == True):
                 return 1#表示重发成功
