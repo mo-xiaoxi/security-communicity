@@ -10,6 +10,7 @@ __Filename__ = 'Cryption.py'
 from Crypto.Cipher import AES
 from Crypto import Random
 from binascii import b2a_hex, a2b_hex
+import Common
 import hmac
 from itertools import cycle, izip
 import struct
@@ -20,8 +21,9 @@ PACKET_SIZE=1024
 '''
 整体包加解密函数
 '''
+
 def encrypt( msg, seq,key):
-    if int(seq) >= MAX_SEQUENCE_NUMBER:
+    if int(seq) > MAX_SEQUENCE_NUMBER:
         raise ValueError("Sequence Number must be smaller than {} but {} is given"
             .format(MAX_SEQUENCE_NUMBER, seq))
     #包填充
