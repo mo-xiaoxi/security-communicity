@@ -2,27 +2,37 @@
 # -*- coding: utf-8 -*-
 __Author__ = 'moxiaoxi'
 __Filename__ = 'testCription.py'
-from comlib import Cryption
-import random
-from itertools import cycle, izip
-def keyExpand(key,message):
-    #message=message[0:48]
-    l=len(key)
-    key.decode("hex")
-    _key = ''.join(chr((ord(c)^ord(k))) for c,k in izip(key, cycle(message)))
-    # print('%s ^ %s = %s' % (message, key, cyphered))
-    return _key.encode("hex")[:l]
+from comlib import Common
+seq=Common.Seq(0,100)
+for i in range(0,255):
+    print seq.next()
 
-key="12345678912345671234567891234567"
-while(True):
-    # length=random.randint(1,50)
-    msg1=''.join(chr(random.randint(0, 0xFF)) for i in range(100))
-    l1=len(key)
-    key=keyExpand(key,msg1)
-    l2=len(key)
-    if(l1!=l2):
-        print l1
-        print l2
+
+
+
+
+
+# from comlib import Cryption
+# import random
+# from itertools import cycle, izip
+# def keyExpand(key,message):
+#     #message=message[0:48]
+#     l=len(key)
+#     key.decode("hex")
+#     _key = ''.join(chr((ord(c)^ord(k))) for c,k in izip(key, cycle(message)))
+#     # print('%s ^ %s = %s' % (message, key, cyphered))
+#     return _key.encode("hex")[:l]
+
+# key="12345678912345671234567891234567"
+# while(True):
+#     # length=random.randint(1,50)
+#     msg1=''.join(chr(random.randint(0, 0xFF)) for i in range(100))
+#     l1=len(key)
+#     key=keyExpand(key,msg1)
+#     l2=len(key)
+#     if(l1!=l2):
+#         print l1
+#         print l2
         
     # hmackey='1234567891234567'
     # seq=2
