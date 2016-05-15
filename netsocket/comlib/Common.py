@@ -1,7 +1,31 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 __Author__ = 'moxiaoxi'
-__Filename__ = 'Subcontracting.py'
+__Filename__ = 'Common.py'
+"""
+在这定义一个迭代类，用于序列号处理
+"""
+class Seq(object):   
+  
+    def __init__(self, start , end): 
+        if(start >= end):
+            raise ValueError("Seq init error ! start {}  end  {}".format(start, end))  
+        self.start = start
+        self.end = end
+        self.n = start  
+  
+    def __iter__(self):   
+        return self   
+  
+    def next(self):  
+            r = self.n
+            if self.n < self.end:   
+                self.n = self.n + 1     
+            else:
+                self.n = self.start    
+            return r
+
+
 """
 Subcontracting
 用于对需要传输的信息按bufsiz进行切分

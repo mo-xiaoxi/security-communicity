@@ -34,16 +34,10 @@ def encrypt( msg, seq,key):
     h = hmac_md5(getKey(key, 0), msgtmp)
     #得到本地ack校验值
     ack = hmac_md5(getKey(key, 2), m_exchange(aesout))
-    #打包成发送数据格式 AES加密后数据（最大512位）＋HMAC输出（32位）
+    #打包成发送数据格式 AES加密后数据（最大1024位）＋HMAC输出（32位）
     if len(aesout) > PACKET_SIZE:
         raise ValueError("Data length should be less than of {}  but {} is given".format(PACKET_SIZE, len(aesout)))
-    packet = struct.pack("<1536s32s", aesout, h)
-    print "msgtmp:    ",msgtmp
-    print "aesout",aesout
-    print "h",h
-    print "getKey(key,0)",getKey(key, 0)
-    print "ack",ack
-    print "packet",packet
+    packet = struct.pack("<1024s32s", aesout, h)
     return packet, ack
 '''
 若包格式错误，直接返回packet,"format wrong",False
@@ -52,7 +46,7 @@ def encrypt( msg, seq,key):
 '''
 def decrypt(packet, seq,key):
     try:
-        aesout, h = struct.unpack("<1536s32s", packet)
+        aesout, h = struct.unpack("<1024s32s", packet)
     except: 
         print 'packet has wrong format !'
         return packet,"format wrong",False
@@ -65,16 +59,8 @@ def decrypt(packet, seq,key):
     msgtmp = aes.decrypt(aesout)
     #对msgtmp进行hmac
     s_h = hmac_md5(getKey(key,0), msgtmp)
-    print "aesout",aesout
-    print "h:",h
-    print "getKey(key,0)",getKey(key,0)
-    print "ack",ack
-    print "msgtmp,",msgtmp
-    print "s_h",s_h
     if s_h == h:
         msg,m_seq= re_packetFill(msgtmp)
-        print "msg",msg
-        print "m_seq",m_seq
         if int(m_seq) == (int(seq) +1)%0xFF:
             return msg,ack,True
         else:
@@ -95,8 +81,6 @@ def hmac_md5(key, msg):
 每次传入message信息与key异或处理生成新的密钥_key。
 然后返回_key
 '''
-
-
 def keyExpand(key,message):
     #message=message[0:48]
     l=len(key)
@@ -133,8 +117,6 @@ def getKey(key,i):
 此message必须为偶数，否则爆出异常
 当为偶数时候将message一分为二前后交换顺序
 '''
-
-
 def m_exchange(message):
     _len=len(message)
     if (_len % 2) == 0:
@@ -142,10 +124,7 @@ def m_exchange(message):
         sStr1 = message [n:_len]+message [0:n]
         return sStr1
     else:
-        raise "Message Not Even Number Error"
-
-
-
+        raise "Message Not Even Number , Error!"
 
 '''
 packetFill

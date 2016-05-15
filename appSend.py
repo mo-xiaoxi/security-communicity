@@ -17,7 +17,7 @@ if __name__ == '__main__':
     # com.SendSecurity('8')
     # com.SendSecurity('9')
     # com.SendSecurity('end')
-    for i in range(0,255):#发送的消息不能为0
+    for i in range(0,0xFFF):#发送的消息不能为0
         message=""
         length=random.randint(1,0xFF)
         message=''.join(chr(random.randint(0, 0xFF)) for i in range(100))
