@@ -14,7 +14,7 @@ if __name__ == '__main__':
     #     message, cli_address = ser_socket.recvfrom(2048)
     #     ser_socket.sendto('s_ack', ('127.0.0.1',40000))
 
-    com=communication.Rec('localhost',40001)
+    com=communication.Rec('localhost',40002)
     com.checkstate()
     while(True):
         msg=com.ReceieveSecurity()

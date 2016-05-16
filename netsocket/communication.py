@@ -41,7 +41,7 @@ class Send():
     def checkState(self):
         if(self.state==0):
             return 0#表示上次发送成功
-        elif(self.state==SUCC):
+        elif(self.state==1):
             msg=File.readFile(self.msgFile,'msg')
             if(self.SendSecurity(msg) == True):
                 return 1#表示重发成功
@@ -53,7 +53,6 @@ class Send():
             return -1 #表示状态码错误
 
     def SendSecurity(self,msg):
-        print "start!!!!!!"
         File.writeFile(self.msgFile,msg,'msg')
         File.writeFile(self.stateFile,1,'state')
         packet,ack=Cryption.encrypt(msg,self.seq,self.key)
@@ -61,14 +60,14 @@ class Send():
         while True:
             try:
                 ackmessage,address = self.Sock.recvfrom(self.bufsiz) #接收校验包
-                print "packet",packet
-                print "ack",ack
-                print "msg",msg
-                print "seq",self.seq
-                print "key",self.key
-                print "ackmessage:",ackmessage
-                print "address:",address
-                print "reSendCount:",self.reSendCount
+                # print "packet",packet
+                # print "ack",ack
+                # print "msg",msg
+                # print "seq",self.seq
+                # print "key",self.key
+                # print "ackmessage:",ackmessage
+                # print "address:",address
+                # print "reSendCount:",self.reSendCount
                 if ackmessage==ack:
                     print 'ack successful ! send next packet'#验证校验包
                     self.key=Cryption.keyExpand(self.key,msg)
@@ -94,12 +93,12 @@ class Send():
                         print "Failed to send  !something erorr ! please check the system !" 
                         return False
             except socket.timeout:
-                print "packet",packet
-                print "ack",ack
-                print "msg",msg
-                print "seq",self.seq
-                print "key",self.key
-                print "reSendCount:",self.reSendCount
+                # print "packet",packet
+                # print "ack",ack
+                # print "msg",msg
+                # print "seq",self.seq
+                # print "key",self.key
+                # print "reSendCount:",self.reSendCount
                 print "timeout,send again"
                 self.Sock.sendto(packet,self.ADDR) 
                 self.reSendCount = self.reSendCount + 1
@@ -156,7 +155,6 @@ class Rec():
                 return 0
 
     def ReceieveSecurity(self):
-        print "start!!!!!!!!!!"
         try:
             #接收数据，发送者地址
             message, cli_address = self.ser_socket.recvfrom(self.bufsiz)
@@ -166,15 +164,15 @@ class Rec():
             sys.exit(-1)
         #将message与key生成ack和解密
         data, s_ack,flag= Cryption.decrypt(message,self.seqRec,self.kn)
-        print "packet:",message
-        print "ack:",s_ack
-        print "msg:",data
-        print "seq:",self.seqRec
-        print "key:",self.key
-        print "keyn:",self.kn
-        print "keyp:",self.kp
-        print "ackmessage:",s_ack
-        print "address:",cli_address
+        # print "packet:",message
+        # print "ack:",s_ack
+        # print "msg:",data
+        # print "seq:",self.seqRec
+        # print "key:",self.key
+        # print "keyn:",self.kn
+        # print "keyp:",self.kp
+        # print "ackmessage:",s_ack
+        # print "address:",cli_address
         #信息正确可以处理
         if (flag == True):
             self.seqRec = (self.seqRec +1)%0xFF
@@ -195,14 +193,12 @@ class Rec():
             return data
         #发送了重复的信息，那么不保存只发送hmac，让客户端更新状态
         else:#(i != (sequence+1)and (s_h==h)):#self.seqRec-1这里会有问题后期修改
-            print s_ack
             data, s_ack,flag = Cryption.decrypt(message,self.seqRec-1,self.kp)
             if(flag == True):
                  print "hmac(now) error,hmac(pass)right ,we still send ack packet to client !"
                  self.ser_socket.sendto(s_ack, cli_address)
                  print "send to ",cli_address,"data:",s_ack
             else:
-                print s_ack
                 print "hmac(now) error,hmac(pass)error!"
 
     def aut_close(self):

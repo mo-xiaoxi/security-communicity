@@ -19,8 +19,8 @@ ForwardtoSender = None #转发给发送者的端口
 local_addr = "127.0.0.1" 
 
 #parameters
-packet_loss_rate = 0.1 #between 0 and 1
-packet_change_rate =0.2
+packet_loss_rate = 0 #between 0 and 1
+packet_change_rate =0
 max_packet_len = 1056
 out_addr = None
 time = 1
