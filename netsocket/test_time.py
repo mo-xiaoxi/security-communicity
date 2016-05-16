@@ -47,6 +47,7 @@ if __name__ =='__main__':
     def countdown(n):
         while n > 0 :
             n -= 1
+
     #例子  使用start／stop计时
     t = Timer()
     t.start()

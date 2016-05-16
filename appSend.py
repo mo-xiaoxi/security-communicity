@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 __Author__ = 'moxiaoxi'
 __Filename__ = 'appSend.py'
-from netsocket import communication
+from netsocket import communication,test_time
 import random
+NUM=1024
+LENGTH=0xFF
 if __name__ == '__main__':
     com=communication.Send('127.0.0.1',40001)
     com.checkState()
@@ -17,10 +19,15 @@ if __name__ == '__main__':
     # com.SendSecurity('8')
     # com.SendSecurity('9')
     # com.SendSecurity('end')
-    for i in range(0,0xFFF):#发送的消息不能为0
+    t = test_time.Timer()
+    t.start()
+    for i in range(0,NUM):#发送的消息不能为0
         message=""
-        length=random.randint(1,0xFF)
+        #length=random.randint(1,0xFF)
+        length=LENGTH
         message=''.join(chr(random.randint(0, 0xFF)) for i in range(100))
         com.SendSecurity(message)#这里出错，记得处理
+    t.stop()
+    print(t.elapsed)
     com.SendSecurity('end')
     com.close()
