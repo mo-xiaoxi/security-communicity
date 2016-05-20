@@ -55,7 +55,7 @@ class Send():
     def SendSecurity(self,msg):
         File.writeFile(self.msgFile,msg,'msg')
         File.writeFile(self.stateFile,1,'state')
-        packet,ack=Cryption.encrypt(msg,self.seq,self.key)
+        packet,ack=Cryption.make_pkt(msg,self.seq,self.key)
         self.Sock.sendto(packet,self.ADDR)
         while True:
             try:
@@ -131,10 +131,10 @@ class Rec():
         self.msgFile = config['msgFile']
         self.SeqFile = config['SeqFile']
         self.stateFile = config['stateFile']
-        self.time = config['time']
+        self.time = config['time']#无用
         self.bufsiz = config['bufsiz']
         
-        self.key = File.readFile(self.keyFile,'key')
+        self.key = Filex.readFile(self.keyFile,'key')
         self.seqRec = File.readFile(self.SeqFile,'num')
         self.state= File.readFile(self.stateFile,'num')
         self.kn = self.key[0:48]
@@ -163,7 +163,7 @@ class Rec():
             print "caught ctrl + d or z or c or whatever......"
             sys.exit(-1)
         #将message与key生成ack和解密
-        data, s_ack,flag= Cryption.decrypt(message,self.seqRec,self.kn)
+        data, s_ack,flag= Cryption.extract_pkt(message,self.seqRec,self.kn)
         # print "packet:",message
         # print "ack:",s_ack
         # print "msg:",data
@@ -193,7 +193,7 @@ class Rec():
             return data
         #发送了重复的信息，那么不保存只发送hmac，让客户端更新状态
         else:#(i != (sequence+1)and (s_h==h)):#self.seqRec-1这里会有问题后期修改
-            data, s_ack,flag = Cryption.decrypt(message,self.seqRec-1,self.kp)
+            data, s_ack,flag = Cryption.extract_pkt(message,self.seqRec-1,self.kp)
             if(flag == True):
                  print "hmac(now) error,hmac(pass)right ,we still send ack packet to client !"
                  self.ser_socket.sendto(s_ack, cli_address)

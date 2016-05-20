@@ -22,7 +22,7 @@ PACKET_SIZE=1024
 整体包加解密函数
 '''
 
-def encrypt( msg, seq,key):
+def make_pkt( msg, seq,key):
     if int(seq) > MAX_SEQUENCE_NUMBER:
         raise ValueError("Sequence Number must be smaller than {} but {} is given"
             .format(MAX_SEQUENCE_NUMBER, seq))
@@ -46,7 +46,7 @@ def encrypt( msg, seq,key):
 若hmac校验错误，返回msg,"hmac wrong",False
 若seq校验错误，返回msg,"hmac wrong",False
 '''
-def decrypt(packet, seq,key):
+def extract_pkt(packet, seq,key):
     try:
         aesout, h = struct.unpack("<1024s32s", packet)
     except: 
@@ -144,7 +144,7 @@ x=987987
 m,y=packetFill.packetFill(message,x)
 print m,y
 print packetFill.re_packetFill(m,y)
-
+seq为8位
 >>>
 
 00987987000000041231(这里的随机填充)  4
