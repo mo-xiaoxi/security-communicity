@@ -18,4 +18,5 @@ class send():
     def Sendsecurity(self,msg):
         pass
 
-    def close()
+    def close():
+        pass
