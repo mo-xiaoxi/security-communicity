@@ -46,8 +46,7 @@ class Packet(object):
         self.data3 = ''
         self.local_ack=''
         self.aesout = ''
-        self.HMAC1 = ''
-        self.HMAC2 = ''#这里想着封装成一个类，方便调试与后期添加功能
+        self.HMAC1 = ''#这里想着封装成一个类，方便调试与后期添加功能
   
     def __iter__(self):   
         return self   
@@ -57,10 +56,9 @@ class Packet(object):
         self.data2 = PacketFill(self.msg,self.seq)
         self.aesout = ''#AES(self.data2,self.aeskey)
         self.HMAC1 = ''#HMAC(self.data2,self.hmackey1)
-        self.data3 = self.aesout+self.HMAC1
-        self.HMAC2 = ''#HMAC(m_exchange(self.data3),self.hmackey2)
-        self.data4 = struct.pack("<1024s32s", self.aesout, self.HMAC2)
-        return packet,ack
+        self.local_ack = ''#HMAC(m_exchange(self.data3),self.hmackey2)
+        self.data3 = struct.pack("<1024s32s", self.aesout, self.HMAC1)
+        return self.data3,self.local_ack
 
     def extract_pkt():
         '解包'
