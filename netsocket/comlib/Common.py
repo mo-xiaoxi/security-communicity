@@ -18,12 +18,12 @@ class Seq(object):
         return self   
   
     def next(self):  
-            r = self.n
-            if self.n < self.end:   
-                self.n = self.n + 1     
-            else:
-                self.n = self.start    
-            return r
+        r = self.n
+        if self.n < self.end:   
+            self.n = self.n + 1     
+        else:
+            self.n = self.start    
+        return r
 q=Seq(2)
 print q.end
 

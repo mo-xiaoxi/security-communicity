@@ -1,0 +1,9 @@
+{
+    "timeout":2,
+    "bufsiz":2048,
+    "reSendCount": 0,
+    "keyFile":"./netsocket/file/Send/key",
+    "msgFile":"./netsocket/file/Send/msg",
+    "SeqFile":"./netsocket/file/Send/seq",
+    "stateFile":"./netsocket/file/Send/state"
+}

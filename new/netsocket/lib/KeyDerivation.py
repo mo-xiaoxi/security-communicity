@@ -1,6 +1,13 @@
+#!usr/bin/env python
+#-*- coding:utf-8 -*-
+
+
 '''
 每次传入message信息与key异或处理生成新的密钥_key。
 然后返回_key
+
+是否需要改变？
+
 '''
 def keyExpand(key,message):
     #message=message[0:48]

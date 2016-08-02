@@ -1,0 +1,8 @@
+{
+    "time":5,
+    "bufsiz":2048,
+    "keyFile":"./netsocket/file/Rec/Key",
+    "msgFile":"./netsocket/file/Rec/msg",
+    "SeqFile":"./netsocket/file/Rec/Seq",
+    "stateFile":"./netsocket/file/Rec/state"
+}
